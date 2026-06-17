@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/homepage/Hero";
+import { Features } from "@/components/homepage/Features";
 
 export default function HomePage() {
   return (
@@ -8,6 +9,7 @@ export default function HomePage() {
       <Navbar />
       <main className="min-h-screen">
         <Hero />
+        <Features />
       </main>
       <Footer />
     </>
