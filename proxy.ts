@@ -3,11 +3,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 const PROTECTED = ["/dashboard", "/profile", "/find-jobs"];
 const AUTH_ONLY = ["/login"];
+const TOKEN_COOKIE = getAccessTokenCookieName();
 
-export async function proxy(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const tokenCookieName = getAccessTokenCookieName();
+  const tokenCookieName = TOKEN_COOKIE;
   const isAuthenticated =
     request.cookies.get(tokenCookieName)?.value != null;
 

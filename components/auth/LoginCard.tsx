@@ -4,12 +4,18 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { signInWithOAuth } from "@/actions/auth";
 
-export function LoginCard() {
+type Props = {
+  oauthError?: string;
+};
+
+export function LoginCard({ oauthError }: Props) {
   const [isPending, startTransition] = useTransition();
   const [pendingProvider, setPendingProvider] = useState<
     "google" | "github" | null
   >(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    oauthError ? "Authentication failed. Please try again." : null,
+  );
 
   const handleOAuth = (provider: "google" | "github") => {
     setError(null);
@@ -32,7 +38,8 @@ export function LoginCard() {
           <div
             className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0"
             style={{
-              background: "linear-gradient(45deg, #7C5CFC 0%, #4A2EC5 100%)",
+              background:
+                "linear-gradient(45deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)",
             }}
           >
             <svg
@@ -42,7 +49,10 @@ export function LoginCard() {
               fill="none"
               aria-hidden="true"
             >
-              <path d="M9 2L15 14H3L9 2Z" fill="white" />
+              <path
+                d="M9 2L15 14H3L9 2Z"
+                fill="var(--color-accent-foreground)"
+              />
             </svg>
           </div>
           <span className="text-[19px] font-bold leading-7 text-text-darkest">
@@ -118,6 +128,7 @@ function GitHubIcon() {
 
 function GoogleIcon() {
   return (
+    // Google brand colors — exact values required by Google's brand guidelines
     <svg
       width="16"
       height="16"

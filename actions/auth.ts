@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 
 export async function signInWithOAuth(
   provider: "google" | "github",
-): Promise<{ error: string } | never> {
+): Promise<{ error: string }> {
   const cookieStore = await cookies();
   const auth = createAuthActions({ cookies: cookieStore });
 
@@ -39,6 +39,7 @@ export async function signInWithOAuth(
 export async function signOut(): Promise<void> {
   const cookieStore = await cookies();
   const auth = createAuthActions({ cookies: cookieStore });
-  await auth.signOut();
+  const { error } = await auth.signOut();
+  if (error) console.error("[signOut]", error);
   redirect("/login");
 }

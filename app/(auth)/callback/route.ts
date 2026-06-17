@@ -8,9 +8,8 @@ export async function GET(request: NextRequest) {
   const errorParam = searchParams.get("error");
 
   if (errorParam || !code) {
-    return NextResponse.redirect(
-      new URL(`/login?error=${errorParam ?? "missing_code"}`, origin),
-    );
+    const msg = encodeURIComponent(errorParam ?? "missing_code");
+    return NextResponse.redirect(new URL(`/login?error=${msg}`, origin));
   }
 
   const cookieStore = await cookies();
@@ -19,13 +18,19 @@ export async function GET(request: NextRequest) {
 
   const auth = createAuthActions({ cookies: cookieStore });
 
-  const { error } = await auth.exchangeOAuthCode(code, codeVerifier);
+  let exchangeError: unknown;
+  try {
+    const { error } = await auth.exchangeOAuthCode(code, codeVerifier);
+    exchangeError = error;
+  } catch (err) {
+    exchangeError = err;
+  }
 
   if (codeVerifier) {
     cookieStore.delete("insforge_code_verifier");
   }
 
-  if (error) {
+  if (exchangeError) {
     return NextResponse.redirect(new URL("/login?error=exchange_failed", origin));
   }
 
