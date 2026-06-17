@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
+import posthog from "posthog-js";
 import { signInWithOAuth } from "@/actions/auth";
 
 type Props = {
@@ -17,14 +18,24 @@ export function LoginCard({ oauthError }: Props) {
     oauthError ? "Authentication failed. Please try again." : null,
   );
 
+  useEffect(() => {
+    if (oauthError) {
+      posthog.capture("login_error_displayed", { reason: oauthError });
+    }
+  }, [oauthError]);
+
   const handleOAuth = (provider: "google" | "github") => {
     setError(null);
     setPendingProvider(provider);
+    posthog.capture("oauth_initiated", { provider });
     startTransition(async () => {
       const result = await signInWithOAuth(provider);
       if (result?.error) {
         setError(result.error);
         setPendingProvider(null);
+        posthog.captureException(new Error(result.error), {
+          properties: { provider },
+        });
       }
     });
   };
@@ -76,7 +87,7 @@ export function LoginCard({ oauthError }: Props) {
         <button
           onClick={() => handleOAuth("google")}
           disabled={isLoading}
-          className="w-full flex items-center justify-center gap-3 bg-surface border border-border rounded-md px-4 py-2.5 text-sm font-medium text-text-primary hover:bg-surface-secondary transition-colors disabled:opacity-60 disabled:cursor-not-allowed mb-3"
+          className="w-full flex items-center justify-center gap-3 bg-surface border border-border rounded-md px-4 py-2.5 text-sm font-medium text-text-primary hover:bg-surface-secondary transition-colors disabled:opacity-60 disabled:cursor-not-allowed mb-3 cursor-pointer"
         >
           {isPending && pendingProvider === "google" ? (
             <span className="w-4 h-4 border-2 border-border border-t-accent rounded-full animate-spin shrink-0" />
@@ -89,7 +100,7 @@ export function LoginCard({ oauthError }: Props) {
         <button
           onClick={() => handleOAuth("github")}
           disabled={isLoading}
-          className="w-full flex items-center justify-center gap-3 bg-surface border border-border rounded-md px-4 py-2.5 text-sm font-medium text-text-primary hover:bg-surface-secondary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-3 bg-surface border border-border rounded-md px-4 py-2.5 text-sm font-medium text-text-primary hover:bg-surface-secondary transition-colors disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
         >
           {isPending && pendingProvider === "github" ? (
             <span className="w-4 h-4 border-2 border-border border-t-accent rounded-full animate-spin shrink-0" />
@@ -102,6 +113,7 @@ export function LoginCard({ oauthError }: Props) {
         <div className="mt-6 text-center">
           <Link
             href="/"
+            onClick={() => posthog.capture("login_back_clicked")}
             className="text-xs text-text-muted hover:text-text-secondary transition-colors"
           >
             ← Back to homepage
