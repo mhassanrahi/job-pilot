@@ -17,13 +17,13 @@ export function Hero() {
         <div className="flex items-center justify-center gap-4 mb-14">
           <Link
             href="/login"
-            className="bg-accent text-accent-foreground text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-accent-dark transition-colors"
+            className="bg-accent text-accent-foreground text-sm font-medium px-5 py-2.5 rounded-md hover:bg-accent-dark transition-colors"
           >
             Get Started
           </Link>
           <Link
             href="/login"
-            className="bg-surface border border-border text-text-primary text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-surface-secondary transition-colors"
+            className="bg-surface border border-border text-text-primary text-sm font-medium px-5 py-2.5 rounded-md hover:bg-surface-secondary transition-colors"
           >
             Find Your First Match
           </Link>

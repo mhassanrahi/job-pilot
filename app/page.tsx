@@ -6,7 +6,7 @@ export default function HomePage() {
   return (
     <>
       <Navbar />
-      <main>
+      <main className="min-h-screen">
         <Hero />
       </main>
       <Footer />
