@@ -1,5 +1,10 @@
-export default function Home() {
+import { Navbar } from "@/components/layout/Navbar";
+
+export default function HomePage() {
   return (
-    <h1 className="bg-info-dark text-white text-3xl">Hello, World!</h1>
+    <>
+      <Navbar />
+      <main className="min-h-screen" />
+    </>
   );
 }
