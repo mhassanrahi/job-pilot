@@ -64,6 +64,22 @@ After building any component — update this file with the component name, file 
 **Name:** `text-sm font-semibold text-text-primary`
 **Title:** `text-xs text-text-muted`
 
+### Auth
+
+#### LoginCard
+**File:** `components/auth/LoginCard.tsx`
+**Page wrapper:** `min-h-screen bg-background flex items-center justify-center p-4`
+**Card:** `bg-surface border border-border rounded-2xl p-8 w-full max-w-sm shadow-[0px_1px_3px_rgba(0,0,0,0.1),_0px_1px_2px_-1px_rgba(0,0,0,0.1)]`
+**Logo container:** `w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0` with inline gradient `linear-gradient(45deg, #7C5CFC 0%, #4A2EC5 100%)`
+**Logo text:** `text-[19px] font-bold leading-7 text-text-darkest`
+**Heading:** `text-base font-semibold text-text-primary text-center`
+**Subheading:** `text-xs text-text-muted text-center`
+**OAuth button:** `w-full flex items-center justify-center gap-3 bg-surface border border-border rounded-md px-4 py-2.5 text-sm font-medium text-text-primary hover:bg-surface-secondary transition-colors disabled:opacity-60 disabled:cursor-not-allowed`
+**Spinner:** `w-4 h-4 border-2 border-border border-t-accent rounded-full animate-spin shrink-0`
+**Back link:** `text-xs text-text-muted hover:text-text-secondary transition-colors`
+
+---
+
 #### BottomCta
 **File:** `components/homepage/BottomCta.tsx`
 **Background:** `linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)` via inline style
