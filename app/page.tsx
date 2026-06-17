@@ -9,7 +9,7 @@ export default function HomePage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen">
+      <main className="flex-1">
         <Hero />
         <Features />
         <Testimonial />
