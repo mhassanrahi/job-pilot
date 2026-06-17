@@ -81,3 +81,11 @@ body {
   background-color: var(--color-background);
   color: var(--color-text-primary);
 }
+
+@utility bg-accent-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--color-accent) 0%,
+    var(--color-accent-dark) 100%
+  );
+}
