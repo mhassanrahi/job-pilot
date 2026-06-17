@@ -13,25 +13,25 @@ export function Footer() {
         <nav className="flex items-center gap-6">
           <Link
             href="/dashboard"
-            className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+            className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
           >
             Dashboard
           </Link>
           <Link
             href="/find-jobs"
-            className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+            className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
           >
             Find Jobs
           </Link>
           <Link
             href="/profile"
-            className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+            className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
           >
             Profile
           </Link>
           <Link
             href="/login"
-            className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+            className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
           >
             Sign In
           </Link>
