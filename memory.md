@@ -1,72 +1,64 @@
-# Memory — Feature 02 Auth
+# Memory — Feature 03 PostHog
 
 Last updated: 2026-06-17
 
 ## What was built
 
-Complete OAuth authentication flow for JobPilot — Feature 02 from the build plan. Google + GitHub OAuth via InsForge BaaS.
-
-**Files created:**
-- `.env.local` — InsForge credentials (`NEXT_PUBLIC_INSFORGE_URL`, `NEXT_PUBLIC_INSFORGE_ANON_KEY`) — values redacted here
-- `app/api/auth/refresh/route.ts` — token refresh endpoint using `createRefreshAuthRouter()` from `@insforge/sdk/ssr`
-- `lib/insforge-client.ts` — browser-side singleton via `createBrowserClient()` from `@insforge/sdk/ssr`
-- `lib/insforge-server.ts` — server-side factory via `createServerClient()` from `@insforge/sdk/ssr`, accepts awaited `cookies()`
-- `actions/auth.ts` — `signInWithOAuth(provider)` + `signOut()` Server Actions
-- `components/auth/LoginCard.tsx` — client component, Google + GitHub OAuth buttons, spinner states, error display
-- `app/(auth)/login/page.tsx` — Server Component, auth-guard redirect, passes `?error` param to LoginCard
-- `app/(auth)/callback/route.ts` — OAuth exchange route handler (GET), PKCE code verifier flow
-- `proxy.ts` — Next.js 16 middleware (named `proxy`, not `middleware`)
+PostHog analytics integration for JobPilot is complete. The foundation (SDK install, client init, server client, reverse proxy) was already in place from a previous wizard run. This session added 3 new events on top of the 7 that already existed.
 
 **Files modified:**
-- `context/ui-registry.md` — LoginCard registered
-- `context/progress-tracker.md` — `[x] 02 Auth` checked, Next: `03 PostHog`
+- `components/layout/Footer.tsx` — converted to `"use client"`, added `handleFooterClick` + `footer_link_clicked` capture on all 4 nav links
+- `components/auth/LoginCard.tsx` — added `login_back_clicked` capture to the "← Back to homepage" link
+- `app/(auth)/login/page.tsx` — added server-side `sign_in_page_viewed` capture via `getPostHogClient()`
+- `posthog-setup-report.md` — updated event table from 7 to 10 events
+
+**Infrastructure already in place (not touched):**
+- `instrumentation-client.ts` — `posthog.init()` using Next.js 15.3+ instrumentation pattern
+- `lib/posthog-server.ts` — singleton `getPostHogClient()` using `posthog-node`
+- `next.config.ts` — reverse proxy rewrites for `/ingest/*` → EU PostHog endpoints
 
 ## Decisions made
 
-- **`@insforge/sdk/ssr` is the correct subpath** — `@insforge/ssr` does not exist on npm (404). All SSR helpers (`createBrowserClient`, `createServerClient`, `createAuthActions`, `createRefreshAuthRouter`) live at `@insforge/sdk/ssr`. Middleware helper `getAccessTokenCookieName` is at `@insforge/sdk/ssr/middleware`.
-- **Next.js 16 middleware is `proxy.ts`** — the file is named `proxy.ts` (not `middleware.ts`) and exports a function named `proxy` (not `middleware`). The `config` export with `matcher` works the same way.
-- **Proxy does lightweight cookie check only** — `proxy.ts` checks `request.cookies.get(TOKEN_COOKIE)?.value != null` rather than calling `updateSession`. Full session management via `updateSession` was abandoned due to `RequestCookies` vs SDK `CookieStore` type incompatibility that couldn't be resolved cleanly.
-- **`getAccessTokenCookieName()` at module level** — called once at import time as `const TOKEN_COOKIE`, not inside the handler, since `proxy` is not `async`.
-- **PKCE flow with httpOnly cookie** — `signInWithOAuth` stores `codeVerifier` in `insforge_code_verifier` httpOnly cookie (10 min TTL). Callback route reads it, calls `exchangeOAuthCode(code, codeVerifier)`, then deletes the cookie.
-- **`searchParams` is `Promise<{...}>` in Next.js 16** — page props `searchParams` must be awaited before use.
-- **Google icon hardcoded hex colors** — `GoogleIcon` SVG uses `#4285F4`, `#34A853`, `#FBBC04`, `#EA4335`. These are Google brand-mandated values with no project token equivalent. Intentional exception to the no-hex rule, documented with a comment.
-- **LoginCard gradient via CSS vars** — `style={{ background: "linear-gradient(45deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)" }}` — uses CSS variables, not hex.
+- **Footer converted to client component** — `posthog-js` is browser-only. Footer had no server-only deps so `"use client"` is safe. Pattern mirrors Navbar exactly.
+- **`sign_in_page_viewed` uses `distinctId: "anonymous"` server-side** — consistent with the existing `sign_in_failed` pattern in `callback/route.ts`. Known limitation: all anonymous page views group under one PostHog person. Accepted trade-off; extracting a session cookie from the PostHog cookie was deemed out of scope.
+- **Event names follow `snake_case` verb_noun** — consistent with all existing events in the project.
 
 ## Problems solved
 
-- **`@insforge/ssr` 404** — package doesn't exist. Correct import is `@insforge/sdk/ssr`.
-- **`lucide-react` has no `Github` export** — replaced with inline `GitHubIcon` SVG component.
-- **`CookieStore` type mismatch in proxy** — `RequestCookies` from Next.js is not assignable to InsForge `CookieStore`. Solved by abandoning `updateSession` and doing a direct cookie name check instead.
-- **`| never` in return type** — `Promise<{ error: string } | never>` is a TypeScript anti-pattern (collapses to `{ error: string }`). Fixed to `Promise<{ error: string }>`.
-- **`signOut` swallowed errors silently** — now logs the error with `console.error("[signOut]", error)` before redirecting.
-- **`errorParam` not URL-encoded in callback** — fixed with `encodeURIComponent(errorParam ?? "missing_code")`.
-- **`exchangeOAuthCode` had no try/catch** — wrapped in try/catch, error stored in `exchangeError` variable.
+- No new problems. All three events were clean first-pass implementations. Lint passed with zero warnings on all modified files.
 
 ## Current state
 
-Feature 02 Auth is **fully complete and clean**. All code standard violations from the review are fixed:
-- No hardcoded hex values in project UI (Google brand colors excepted)
-- All route handlers have try/catch
-- Return types are correct
-- Errors are logged, not swallowed
-- `proxy.ts` is synchronous and uses module-level token cookie name
+Feature 03 PostHog is **fully complete**. 10 events total are instrumented:
 
-OAuth redirect URLs still need to be configured in the InsForge dashboard before end-to-end testing is possible.
+| Event | File |
+|---|---|
+| `cta_clicked` | `components/homepage/CtaLink.tsx` |
+| `nav_link_clicked` | `components/layout/Navbar.tsx` |
+| `footer_link_clicked` | `components/layout/Footer.tsx` |
+| `oauth_initiated` | `components/auth/LoginCard.tsx` |
+| `login_error_displayed` | `components/auth/LoginCard.tsx` |
+| `login_back_clicked` | `components/auth/LoginCard.tsx` |
+| `sign_in_page_viewed` | `app/(auth)/login/page.tsx` |
+| `sign_in_success` | `app/(auth)/callback/route.ts` |
+| `sign_in_failed` | `app/(auth)/callback/route.ts` |
+| `sign_out` | `actions/auth.ts` |
+
+Outstanding checklist from `posthog-setup-report.md`:
+- [ ] Full production build + fix any lint/type errors
+- [ ] Run test suite
+- [ ] Add PostHog env vars to `.env.example`
+- [ ] Wire source-map upload into CI
+- [ ] Confirm returning-visitor path also calls `identify` (currently only on fresh sign-in)
 
 ## Next session starts with
 
-**Feature 03 — PostHog Analytics** (Phase 1, Foundation).
+Check `context/build-plan.md` and `context/progress-tracker.md` to identify Feature 04. Mark `[x] 03 PostHog` in `progress-tracker.md` before starting.
 
-From `context/build-plan.md` — Feature 03 scope:
-- Install `posthog-js`
-- Create `PostHogProvider` client component wrapping `posthog.init()`
-- Add `PostHogPageView` for SPA page tracking
-- Identify logged-in users via `posthog.identify(user.id)`
-- Wrap `app/layout.tsx` root layout with the provider
-
-Before starting: run `/remember restore`, read all context files per AGENTS.md order, then check if there is an installed PostHog skill before installing any packages.
+Before starting: run `/remember restore`, read all context files per AGENTS.md order.
 
 ## Open questions
 
-- OAuth redirect URLs need to be registered in the InsForge dashboard (`https://<domain>/callback`). Must be done before testing the full OAuth flow end to end.
-- `--color-accent-dark` CSS variable — used in the gradient but not verified against the `@theme` token list in `context/ui-tokens.md`. Confirm it exists before the next UI session.
+- OAuth redirect URLs still need to be registered in the InsForge dashboard (`https://<domain>/callback`) before end-to-end auth testing is possible (carried over from Feature 02).
+- `--color-accent-dark` CSS variable — used in LoginCard gradient but not verified against the `@theme` token list in `context/ui-tokens.md`. Confirm it exists before the next UI session.
+- Returning visitors are tracked anonymously until they sign in again — `identify` only runs in the OAuth callback. Consider adding a session-restore identify call if a logged-in user lands on any authenticated page.
