@@ -35,7 +35,7 @@ export function Navbar() {
 
         <Link
           href="/login"
-          className="bg-accent text-accent-foreground text-sm font-medium px-4 py-2 rounded-md hover:bg-accent-dark transition-colors"
+          className="bg-accent text-accent-foreground text-sm font-medium px-4 py-2 rounded-lg hover:bg-accent-dark transition-colors"
         >
           Get Started
         </Link>
