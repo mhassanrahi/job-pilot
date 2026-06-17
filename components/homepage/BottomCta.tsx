@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { CtaLink } from "@/components/homepage/CtaLink";
 
 export function BottomCta() {
   return (
@@ -12,18 +12,22 @@ export function BottomCta() {
           you. Show up to every interview prepared.
         </p>
         <div className="flex items-center justify-center gap-4">
-          <Link
+          <CtaLink
             href="/login"
+            ctaLocation="bottom_cta"
+            ctaLabel="Get Started"
             className="bg-accent-foreground text-accent text-sm font-medium px-5 py-2.5 rounded-md hover:bg-surface-secondary transition-colors"
           >
             Get Started
-          </Link>
-          <Link
+          </CtaLink>
+          <CtaLink
             href="/login"
+            ctaLocation="bottom_cta"
+            ctaLabel="Find Your First Match"
             className="text-sm font-medium px-5 py-2.5 rounded-md border border-accent-foreground text-accent-foreground hover:bg-accent-foreground/10 transition-colors"
           >
             Find Your First Match
-          </Link>
+          </CtaLink>
         </div>
       </div>
     </section>

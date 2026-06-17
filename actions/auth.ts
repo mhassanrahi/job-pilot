@@ -3,6 +3,8 @@
 import { createAuthActions } from "@insforge/sdk/ssr";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { createInsforgeServer } from "@/lib/insforge-server";
+import { getPostHogClient } from "@/lib/posthog-server";
 
 export async function signInWithOAuth(
   provider: "google" | "github",
@@ -38,8 +40,22 @@ export async function signInWithOAuth(
 
 export async function signOut(): Promise<void> {
   const cookieStore = await cookies();
+
+  const insforge = await createInsforgeServer();
+  const { data: { user } } = await insforge.auth.getCurrentUser();
+
   const auth = createAuthActions({ cookies: cookieStore });
   const { error } = await auth.signOut();
   if (error) console.error("[signOut]", error);
+
+  if (user) {
+    const posthog = getPostHogClient();
+    posthog.capture({
+      distinctId: user.id,
+      event: "sign_out",
+      properties: { email: user.email },
+    });
+  }
+
   redirect("/login");
 }

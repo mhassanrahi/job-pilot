@@ -1,7 +1,15 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import posthog from "posthog-js";
+import { CtaLink } from "@/components/homepage/CtaLink";
 
 export function Navbar() {
+  const handleNavClick = (label: string, href: string) => {
+    posthog.capture("nav_link_clicked", { label, href });
+  };
+
   return (
     <header className="w-full bg-surface border-b border-border">
       <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
@@ -15,30 +23,35 @@ export function Navbar() {
         <nav className="flex items-center gap-8">
           <Link
             href="/dashboard"
+            onClick={() => handleNavClick("Dashboard", "/dashboard")}
             className="text-sm font-medium text-text-dark hover:text-accent transition-colors"
           >
             Dashboard
           </Link>
           <Link
             href="/find-jobs"
+            onClick={() => handleNavClick("Find Jobs", "/find-jobs")}
             className="text-sm font-medium text-text-dark hover:text-accent transition-colors"
           >
             Find Jobs
           </Link>
           <Link
             href="/profile"
+            onClick={() => handleNavClick("Profile", "/profile")}
             className="text-sm font-medium text-text-dark hover:text-accent transition-colors"
           >
             Profile
           </Link>
         </nav>
 
-        <Link
+        <CtaLink
           href="/login"
+          ctaLocation="navbar"
+          ctaLabel="Get Started"
           className="bg-accent text-accent-foreground text-sm font-medium px-4 py-2 rounded-md hover:bg-accent-dark transition-colors"
         >
           Get Started
-        </Link>
+        </CtaLink>
       </div>
     </header>
   );
