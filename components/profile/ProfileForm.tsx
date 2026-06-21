@@ -413,6 +413,7 @@ export function ProfileForm({ initialData }: { initialData: ProfileRow | null })
                         <button
                           type="button"
                           onClick={() => removeSkill(skill)}
+                          aria-label={`Remove skill ${skill}`}
                           className="text-text-muted hover:text-text-secondary transition-colors"
                         >
                           <X className="w-3 h-3" />
@@ -459,6 +460,7 @@ export function ProfileForm({ initialData }: { initialData: ProfileRow | null })
                         <button
                           type="button"
                           onClick={() => removeIndustry(industry)}
+                          aria-label={`Remove industry ${industry}`}
                           className="text-text-muted hover:text-text-secondary transition-colors"
                         >
                           <X className="w-3 h-3" />
@@ -752,13 +754,12 @@ export function ProfileForm({ initialData }: { initialData: ProfileRow | null })
           type="button"
           onClick={handleSave}
           disabled={isPending}
-          className={`w-full text-sm font-medium py-3 rounded-md transition-colors disabled:cursor-not-allowed ${
-            status === "saved"
+          className={`w-full text-sm font-medium py-3 rounded-md transition-colors disabled:cursor-not-allowed ${status === "saved"
               ? "bg-success text-white"
               : status === "error"
                 ? "bg-error text-white hover:bg-error/90"
                 : "bg-accent text-accent-foreground hover:bg-accent-dark disabled:opacity-70"
-          }`}
+            }`}
         >
           {saveLabel}
         </button>
