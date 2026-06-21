@@ -89,7 +89,9 @@ export async function saveProfile(
   const insforge = await createInsforgeServer();
   const {
     data: { user },
+    error: authError,
   } = await insforge.auth.getCurrentUser();
+  if (authError) throw new Error(authError.message);
   if (!user) redirect("/login");
 
   try {
@@ -157,7 +159,9 @@ export async function uploadResume(
   const insforge = await createInsforgeServer();
   const {
     data: { user },
+    error: authError,
   } = await insforge.auth.getCurrentUser();
+  if (authError) throw new Error(authError.message);
   if (!user) redirect("/login");
 
   try {
