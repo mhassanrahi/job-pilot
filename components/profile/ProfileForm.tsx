@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition } from "react";
 import { X, Plus, CalendarDays, ChevronDown } from "lucide-react";
 import { saveProfile } from "@/actions/profile";
 import type { ProfileRow, WorkExperience, ExtractedFields } from "@/actions/profile";
@@ -149,28 +149,31 @@ export function ProfileForm({
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">(
     "idle",
   );
+  const [prevExtractedFields, setPrevExtractedFields] = useState(extractedFields);
 
-  useEffect(() => {
-    if (!extractedFields) return;
-    setForm((prev) => ({
-      ...prev,
-      ...(extractedFields.fullName !== undefined && { fullName: extractedFields.fullName }),
-      ...(extractedFields.phone !== undefined && { phone: extractedFields.phone }),
-      ...(extractedFields.location !== undefined && { location: extractedFields.location }),
-      ...(extractedFields.linkedinUrl !== undefined && { linkedinUrl: extractedFields.linkedinUrl }),
-      ...(extractedFields.portfolioUrl !== undefined && { portfolioUrl: extractedFields.portfolioUrl }),
-      ...(extractedFields.currentTitle !== undefined && { currentTitle: extractedFields.currentTitle }),
-      ...(extractedFields.experienceLevel !== undefined && { experienceLevel: extractedFields.experienceLevel }),
-      ...(extractedFields.yearsExperience !== undefined && { yearsExperience: extractedFields.yearsExperience }),
-      ...(extractedFields.skills?.length && { skills: extractedFields.skills }),
-      ...(extractedFields.industries?.length && { industries: extractedFields.industries }),
-      ...(extractedFields.workExperience?.length && { workExperience: extractedFields.workExperience }),
-      ...(extractedFields.highestDegree !== undefined && { highestDegree: extractedFields.highestDegree }),
-      ...(extractedFields.fieldOfStudy !== undefined && { fieldOfStudy: extractedFields.fieldOfStudy }),
-      ...(extractedFields.institutionName !== undefined && { institutionName: extractedFields.institutionName }),
-      ...(extractedFields.graduationYear !== undefined && { graduationYear: extractedFields.graduationYear }),
-    }));
-  }, [extractedFields]);
+  if (prevExtractedFields !== extractedFields) {
+    setPrevExtractedFields(extractedFields);
+    if (extractedFields) {
+      setForm((prev) => ({
+        ...prev,
+        ...(extractedFields.fullName !== undefined && { fullName: extractedFields.fullName }),
+        ...(extractedFields.phone !== undefined && { phone: extractedFields.phone }),
+        ...(extractedFields.location !== undefined && { location: extractedFields.location }),
+        ...(extractedFields.linkedinUrl !== undefined && { linkedinUrl: extractedFields.linkedinUrl }),
+        ...(extractedFields.portfolioUrl !== undefined && { portfolioUrl: extractedFields.portfolioUrl }),
+        ...(extractedFields.currentTitle !== undefined && { currentTitle: extractedFields.currentTitle }),
+        ...(extractedFields.experienceLevel !== undefined && { experienceLevel: extractedFields.experienceLevel }),
+        ...(extractedFields.yearsExperience !== undefined && { yearsExperience: extractedFields.yearsExperience }),
+        ...(extractedFields.skills?.length && { skills: extractedFields.skills }),
+        ...(extractedFields.industries?.length && { industries: extractedFields.industries }),
+        ...(extractedFields.workExperience?.length && { workExperience: extractedFields.workExperience }),
+        ...(extractedFields.highestDegree !== undefined && { highestDegree: extractedFields.highestDegree }),
+        ...(extractedFields.fieldOfStudy !== undefined && { fieldOfStudy: extractedFields.fieldOfStudy }),
+        ...(extractedFields.institutionName !== undefined && { institutionName: extractedFields.institutionName }),
+        ...(extractedFields.graduationYear !== undefined && { graduationYear: extractedFields.graduationYear }),
+      }));
+    }
+  }
 
   const set = (key: keyof FormState, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }));
