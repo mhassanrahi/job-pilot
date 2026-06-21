@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { X, Plus, CalendarDays, ChevronDown } from "lucide-react";
 import { saveProfile } from "@/actions/profile";
-import type { ProfileRow, WorkExperience } from "@/actions/profile";
+import type { ProfileRow, WorkExperience, ExtractedFields } from "@/actions/profile";
 
 type FormState = {
   fullName: string;
@@ -137,12 +137,40 @@ function SectionDivider() {
   return <div className="border-t border-border" />;
 }
 
-export function ProfileForm({ initialData }: { initialData: ProfileRow | null }) {
+export function ProfileForm({
+  initialData,
+  extractedFields,
+}: {
+  initialData: ProfileRow | null;
+  extractedFields: ExtractedFields | null;
+}) {
   const [form, setForm] = useState<FormState>(() => dbToForm(initialData));
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">(
     "idle",
   );
+
+  useEffect(() => {
+    if (!extractedFields) return;
+    setForm((prev) => ({
+      ...prev,
+      ...(extractedFields.fullName !== undefined && { fullName: extractedFields.fullName }),
+      ...(extractedFields.phone !== undefined && { phone: extractedFields.phone }),
+      ...(extractedFields.location !== undefined && { location: extractedFields.location }),
+      ...(extractedFields.linkedinUrl !== undefined && { linkedinUrl: extractedFields.linkedinUrl }),
+      ...(extractedFields.portfolioUrl !== undefined && { portfolioUrl: extractedFields.portfolioUrl }),
+      ...(extractedFields.currentTitle !== undefined && { currentTitle: extractedFields.currentTitle }),
+      ...(extractedFields.experienceLevel !== undefined && { experienceLevel: extractedFields.experienceLevel }),
+      ...(extractedFields.yearsExperience !== undefined && { yearsExperience: extractedFields.yearsExperience }),
+      ...(extractedFields.skills?.length && { skills: extractedFields.skills }),
+      ...(extractedFields.industries?.length && { industries: extractedFields.industries }),
+      ...(extractedFields.workExperience?.length && { workExperience: extractedFields.workExperience }),
+      ...(extractedFields.highestDegree !== undefined && { highestDegree: extractedFields.highestDegree }),
+      ...(extractedFields.fieldOfStudy !== undefined && { fieldOfStudy: extractedFields.fieldOfStudy }),
+      ...(extractedFields.institutionName !== undefined && { institutionName: extractedFields.institutionName }),
+      ...(extractedFields.graduationYear !== undefined && { graduationYear: extractedFields.graduationYear }),
+    }));
+  }, [extractedFields]);
 
   const set = (key: keyof FormState, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }));

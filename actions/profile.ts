@@ -49,6 +49,24 @@ export type ProfileRow = {
   updated_at: string;
 };
 
+export type ExtractedFields = Partial<{
+  fullName: string;
+  phone: string;
+  location: string;
+  linkedinUrl: string;
+  portfolioUrl: string;
+  currentTitle: string;
+  experienceLevel: string;
+  yearsExperience: string;
+  skills: string[];
+  industries: string[];
+  workExperience: WorkExperience[];
+  highestDegree: string;
+  fieldOfStudy: string;
+  institutionName: string;
+  graduationYear: string;
+}>;
+
 export type ProfileFormData = {
   fullName: string;
   phone: string;

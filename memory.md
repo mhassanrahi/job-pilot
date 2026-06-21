@@ -1,62 +1,56 @@
-# Memory — Feature 06 Profile Save Logic
+# Memory — Feature 07 AI Profile Extraction from Resume
 
-Last updated: 2026-06-21
+Last updated: 2026-06-22
 
 ## What was built
 
-Feature 06 Profile Save Logic is fully complete. Build compiles clean with zero TypeScript errors.
+Feature 07 AI Profile Extraction from Resume — implemented but debugging still in progress at end of session.
 
 **Files created:**
-- `actions/profile.ts` — exports `ProfileRow`, `ProfileFormData`, `WorkExperience`, `Education` types; `saveProfile` Server Action (maps FormState → DB columns, computes `is_complete`, fires PostHog `profile_saved`); `uploadResume` Server Action (uploads to InsForge Storage at `{userId}/resume.pdf`, saves `resume_pdf_url` to profiles row, fires `resume_uploaded`)
+- `app/api/resume/extract/route.ts` — POST API route: auth → signed URL from InsForge Storage → fetch PDF buffer → `pdf-parse` v2 text extraction → OpenRouter LLM call → returns `ExtractedFields` JSON
+- `components/profile/ProfilePageClient.tsx` — thin `"use client"` wrapper that holds `extractedFields` state; renders `ResumeSection` (passes `onExtracted` callback) and `ProfileForm` (passes `extractedFields` prop)
 
 **Files modified:**
-- `app/profile/page.tsx` — now async Server Component: authenticates user via `createInsforgeServer()`, reads profiles row from DB, computes `missingFields`/`completionPct`, passes props to all three child components; redirects to `/login` if no user
-- `components/profile/CompletionBanner.tsx` — now accepts `missingFields: string[]` and `completionPct: number` props; dynamic instead of hardcoded; shows green `CheckCircle2` + "Profile complete" state when all fields filled
-- `components/profile/ResumeSection.tsx` — now a client component; accepts `resumeUrl: string | null`; hidden file input triggered by "Select Resume" button; immediate upload on file select via `uploadResume` server action + `useTransition`; shows upload status and "View current resume" link
-- `components/profile/ProfileForm.tsx` — accepts `initialData: ProfileRow | null`; pre-fills form via `dbToForm()` helper; Save button wired to `saveProfile` with `useTransition` and `idle/saving/saved/error` button states; added `removeWorkExp` handler
-- `context/ui-registry.md` — CompletionBanner and ResumeSection entries updated with new prop signatures
-- `context/progress-tracker.md` — Feature 06 checked, current set to Feature 07 AI Profile Extraction from Resume
+- `actions/profile.ts` — added `ExtractedFields` type (exported; `Partial<{fullName, phone, location, ...workExperience, education fields}>`)
+- `components/profile/ResumeSection.tsx` — phase state machine (`idle → uploading → extracting → complete | error`); after upload success, automatically POSTs to `/api/resume/extract`; `onExtracted` callback fires with parsed fields; extraction failure is silent (upload still completes)
+- `components/profile/ProfileForm.tsx` — added `extractedFields: ExtractedFields | null` prop + `useEffect` that merges extracted values into form state when prop changes; preference fields never touched
+- `app/profile/page.tsx` — replaced `<ResumeSection>` + `<ProfileForm>` with `<ProfilePageClient initialData={...} resumeUrl={...} />`
+- `next.config.ts` — `serverExternalPackages: ["pdf-parse", "@napi-rs/canvas"]`
+- `context/progress-tracker.md` and `context/ui-registry.md` — updated
+
+**Packages installed:** `pdf-parse`, `openai`, `@types/pdf-parse` (later uninstalled — v2 has own types)
 
 ## Decisions made
 
-- **`insforge.database.from()` not `insforge.from()`** — library-docs.md shows the old API but the actual SDK (v latest via `@insforge/sdk/ssr`) requires `.database.from()`. Confirmed by TypeScript build error.
-- **Storage upload has no options** — `insforge.storage.from().upload(path, file)` takes only 2 args. No `upsert`, no `contentType`. Each upload at the same path may auto-rename; URL from `data.url` is always correct. Old files accumulate — cleanup deferred.
-- **Resume upload is immediate** — triggers on file select, fully independent of Save Profile. Uses `useTransition` + `uploadResume` server action.
-- **`redirect()` must be outside try/catch** — calling `redirect()` inside try/catch causes the NEXT_REDIRECT error to be caught, returning `{ success: false }` instead of redirecting. Auth check moved before the try block in both actions.
-- **`posthog.shutdown()` removed from actions** — the singleton is never reset after shutdown, breaking subsequent captures. Pattern from `auth.ts` (no shutdown) is correct with `flushAt: 1` + `flushInterval: 0`.
-- **is_complete required fields** — fullName + phone + location + currentTitle + skills(≥1) + institutionName. Maps to the 3 banner pills (PHONE, LOCATION, EDUCATION) plus 3 others.
-- **`dbToForm` helper lives in ProfileForm.tsx** — it's a pure client-side transformation, not exported from the server action file.
+- **Extraction is automatic on upload** — no "Extract from Resume" button; fires immediately after upload success inside `useTransition` in `ResumeSection`
+- **State sharing via ProfilePageClient** — `ResumeSection` and `ProfileForm` are siblings under a Server Component; thin client wrapper holds shared `extractedFields` state
+- **API route, not Server Action** — heavier operation (PDF parse + AI call), matches architecture.md pattern for resume operations at `app/api/resume/`
+- **PDF downloaded from storage in API route** — route creates a 60-second signed URL and fetches the buffer server-side; client never re-uploads the file
+- **pdf-parse is v2 (class-based)** — `new PDFParse({ data: buffer })` → `parser.getText()` → `result.text`; must import `"pdf-parse/worker"` before `PDFParse` in serverless
+- **OpenRouter model** — `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free`; `max_tokens: 8000` required because reasoning trace consumes most tokens before JSON output
+- **Reasoning model fallback** — model puts output in non-standard `reasoning` field (not `content`); code checks `content || reasoning`; `parseJsonSafe` extracts JSON by finding outermost `{...}` in mixed text
 
 ## Problems solved
 
-- **`saveProfile` returning `{ success: true }` but data not persisting** — root cause was that the `profiles` table had 0 rows. The `handle_new_user` function existed in InsForge but the trigger wiring it to `auth.users INSERT` was never created (Feature 04 gap). Fixed by: (1) creating `on_auth_user_created` trigger via MCP SQL, (2) backfilling 3 existing users with `INSERT INTO profiles SELECT FROM auth.users WHERE id NOT IN (SELECT id FROM profiles)`.
-- **`redirect()` inside try/catch** — swallowed the NEXT_REDIRECT error, returning failure to the client instead of redirecting. Fixed by moving auth check outside try blocks.
-- **PostHog singleton broken by shutdown()** — removed `await posthog.shutdown()` from both actions; matches existing pattern in auth.ts.
+- **`pdf-parse` is not a function** — installed package is v2 (class-based API), not the v1 function-based API documented in library-docs.md. Fix: use `new PDFParse({ data: buffer })`.
+- **`require()` and `import().default` both failed** — Next.js ESM module context wraps CJS exports; v2 class API solved the problem entirely (no require needed)
+- **`content` is null from reasoning model** — `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` is a reasoning model that writes to `response.choices[0].message.reasoning` not `content`. Fixed with fallback.
+- **Reasoning trace truncated at 800 tokens** — reasoning model consumes `max_tokens` budget on the trace itself; raised to 8000 to leave room for JSON output
 
 ## Current state
 
-Phase 2 — Profile Page:
-- Feature 06 is 100% complete and working end-to-end
-- Form saves correctly to DB, pre-fills on reload
-- CompletionBanner updates dynamically based on saved data
-- Resume upload wired (uploads to InsForge Storage, URL saved to profiles row)
-- `on_auth_user_created` trigger is live in InsForge — future signups auto-create a profiles row
-- 3 existing users have been backfilled with profiles rows
+Feature 07 is implemented. Last known issue was the reasoning model producing truncated output at 800 tokens — fixed by raising to 8000. End-to-end verification (upload → extract → form populated) was not completed before session end; next session should verify this works first.
 
 ## Next session starts with
 
-Feature 07 — AI Profile Extraction from Resume.
+1. Verify Feature 07 end-to-end: upload a PDF → confirm form fields populate correctly
+3. Then move to Feature 08 — Resume PDF Generation from Profile (`POST /api/resume/generate`, reads profile from DB, nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free generates content, `@react-pdf/renderer` renders to buffer, uploads to InsForge Storage)
 
-Key things to build:
-- Parse uploaded resume PDF (use `pdf-parse` library — server-side only, per library-docs.md)
-- Extract structured profile fields using OpenAI GPT-4o (structured JSON response, temperature 0.3)
-- Map extracted fields back to ProfileForm state and trigger a save
-- Surface this as a "Extract from Resume" flow triggered from ResumeSection
-
-Before starting: run `/remember restore`, read all context files per AGENTS.md order. Run `/architect` before touching any code.
+Before Feature 08: run `/remember restore`, read context files per AGENTS.md order, run `/architect` before touching any code.
 
 ## Open questions
 
-- **Defensive upsert in `saveProfile`** — the action still uses pure `.update()`. If the trigger ever fails or a row is deleted, saves will silently no-op again. Should be hardened: attempt update, if `count === 0`, do insert. Not blocking for Feature 07 but should be done before shipping.
-- **OAuth redirect URLs** — still need to be registered in InsForge dashboard (`https://<domain>/callback`) before production auth testing (carried over from Feature 02).
-- **PostHog session-restore identify** — `identify` only runs in the OAuth callback. Consider adding a session-restore call on authenticated page loads (carried over from Feature 03).
+- **Feature 07 end-to-end not confirmed** — last session ended before verifying the 8000 token fix resolved the truncated reasoning issue
+- **Defensive upsert in `saveProfile`** — still uses pure `.update()`; if trigger fails or row deleted, saves silently no-op. Should upsert before shipping (carried over from Feature 06)
+- **OAuth redirect URLs** — need to be registered in InsForge dashboard before production auth testing (carried over from Feature 02)
+- **PostHog session-restore identify** — `identify` only runs in OAuth callback; consider adding on authenticated page loads (carried over from Feature 03)
