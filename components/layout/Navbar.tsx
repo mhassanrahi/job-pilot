@@ -2,13 +2,23 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import posthog from "posthog-js";
 import { CtaLink } from "@/components/homepage/CtaLink";
 
 export function Navbar() {
+  const pathname = usePathname();
+
   const handleNavClick = (label: string, href: string) => {
     posthog.capture("nav_link_clicked", { label, href });
   };
+
+  const navClass = (href: string) =>
+    `text-sm font-medium transition-colors ${
+      pathname === href
+        ? "text-accent"
+        : "text-text-dark hover:text-accent"
+    }`;
 
   return (
     <header className="w-full bg-surface border-b border-border">
@@ -24,21 +34,21 @@ export function Navbar() {
           <Link
             href="/dashboard"
             onClick={() => handleNavClick("Dashboard", "/dashboard")}
-            className="text-sm font-medium text-text-dark hover:text-accent transition-colors"
+            className={navClass("/dashboard")}
           >
             Dashboard
           </Link>
           <Link
             href="/find-jobs"
             onClick={() => handleNavClick("Find Jobs", "/find-jobs")}
-            className="text-sm font-medium text-text-dark hover:text-accent transition-colors"
+            className={navClass("/find-jobs")}
           >
             Find Jobs
           </Link>
           <Link
             href="/profile"
             onClick={() => handleNavClick("Profile", "/profile")}
-            className="text-sm font-medium text-text-dark hover:text-accent transition-colors"
+            className={navClass("/profile")}
           >
             Profile
           </Link>
