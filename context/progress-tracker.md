@@ -6,9 +6,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Current Status
 
-**Phase:** Phase 1 — Foundation
-**Last completed:** 02 Auth
-**Next:** 03 PostHog Initialization
+**Phase:** Phase 2 — Profile Page
+**Last completed:** 04 Database Schema
+**Next:** 05 Profile Page — Full UI
 
 ---
 
@@ -18,8 +18,8 @@ Update this file after every completed feature. Any AI agent reading this should
 
 - [x] 01 Homepage
 - [x] 02 Auth
-- [ ] 03 PostHog Initialization
-- [ ] 04 Database Schema
+- [x] 03 PostHog Initialization
+- [x] 04 Database Schema
 
 ### Phase 2 — Profile Page
 
@@ -50,7 +50,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Decisions Made During Build
 
-_Add decisions here as they are made during implementation._
+- **Profile auto-creation**: `handle_new_user` trigger on `auth.users INSERT` creates a blank profiles row automatically — ensures a row always exists before any agent or profile code runs
+- **`updated_at` trigger**: `handle_updated_at` BEFORE UPDATE trigger on profiles — app code never needs to pass this field explicitly
+- **storage.objects RLS**: InsForge uses `bucket` and `key` columns (not Supabase's `bucket_id`/`name`) — policies use `split_part(key, '/', 1) = auth.uid()::text` to scope to own path
 
 ---
 
