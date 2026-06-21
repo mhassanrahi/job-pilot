@@ -755,9 +755,9 @@ export function ProfileForm({ initialData }: { initialData: ProfileRow | null })
           onClick={handleSave}
           disabled={isPending}
           className={`w-full text-sm font-medium py-3 rounded-md transition-colors disabled:cursor-not-allowed ${status === "saved"
-              ? "bg-success text-white"
+              ? "bg-success text-success-foreground"
               : status === "error"
-                ? "bg-error text-white hover:bg-error/90"
+                ? "bg-error text-error-foreground hover:bg-error/90"
                 : "bg-accent text-accent-foreground hover:bg-accent-dark disabled:opacity-70"
             }`}
         >
