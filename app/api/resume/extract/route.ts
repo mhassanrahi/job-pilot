@@ -39,18 +39,29 @@ Return a JSON object with these fields (all optional):
   "graduationYear": string (YYYY)
 }`;
 
+function isValidExtractedFields(obj: unknown): obj is ExtractedFields {
+  if (!obj || typeof obj !== "object" || Array.isArray(obj)) return false;
+  const o = obj as Record<string, unknown>;
+  if (o.skills !== undefined && !Array.isArray(o.skills)) return false;
+  if (o.industries !== undefined && !Array.isArray(o.industries)) return false;
+  if (o.workExperience !== undefined && !Array.isArray(o.workExperience)) return false;
+  return true;
+}
+
 function parseJsonSafe(raw: string): ExtractedFields | null {
   if (!raw) return null;
   try {
     const stripped = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
     try {
-      return JSON.parse(stripped) as ExtractedFields;
+      const parsed: unknown = JSON.parse(stripped);
+      return isValidExtractedFields(parsed) ? parsed : null;
     } catch {
       // Reasoning models embed JSON inside a longer text — extract the outermost object
       const start = stripped.indexOf("{");
       const end = stripped.lastIndexOf("}");
       if (start !== -1 && end > start) {
-        return JSON.parse(stripped.slice(start, end + 1)) as ExtractedFields;
+        const parsed: unknown = JSON.parse(stripped.slice(start, end + 1));
+        return isValidExtractedFields(parsed) ? parsed : null;
       }
       return null;
     }
