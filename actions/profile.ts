@@ -208,3 +208,26 @@ export async function uploadResume(
     return { success: false, error: "Failed to upload resume" };
   }
 }
+
+export async function getResumeSignedUrl(): Promise<{
+  url?: string;
+  error?: string;
+}> {
+  const insforge = await createInsforgeServer();
+  const {
+    data: { user },
+    error: authError,
+  } = await insforge.auth.getCurrentUser();
+  if (authError) throw new Error(authError.message);
+  if (!user) redirect("/login");
+
+  const { data, error } = await insforge.storage
+    .from("resumes")
+    .createSignedUrl(`${user.id}/resume.pdf`, 3600);
+
+  if (error || !data) {
+    return { error: "Failed to generate resume link" };
+  }
+
+  return { url: data.signedUrl };
+}

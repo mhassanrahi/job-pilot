@@ -2,7 +2,7 @@
 
 import { useRef, useTransition, useState } from "react";
 import { UploadCloud, FileText, Sparkles } from "lucide-react";
-import { uploadResume } from "@/actions/profile";
+import { uploadResume, getResumeSignedUrl } from "@/actions/profile";
 
 type UploadStatus = "idle" | "uploading" | "done" | "error";
 
@@ -12,6 +12,16 @@ export function ResumeSection({ resumeUrl }: { resumeUrl: string | null }) {
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [fileName, setFileName] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isViewingResume, setIsViewingResume] = useState(false);
+
+  async function handleViewResume() {
+    setIsViewingResume(true);
+    const result = await getResumeSignedUrl();
+    setIsViewingResume(false);
+    if (result.url) {
+      window.open(result.url, "_blank", "noopener,noreferrer");
+    }
+  }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -94,14 +104,14 @@ export function ResumeSection({ resumeUrl }: { resumeUrl: string | null }) {
         {resumeUrl && status !== "done" && (
           <div className="flex items-center gap-2 text-sm text-text-secondary">
             <FileText className="w-4 h-4 shrink-0 text-accent" />
-            <a
-              href={resumeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-accent hover:text-accent-dark transition-colors underline underline-offset-2"
+            <button
+              type="button"
+              disabled={isViewingResume}
+              onClick={handleViewResume}
+              className="text-accent hover:text-accent-dark transition-colors underline underline-offset-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              View current resume
-            </a>
+              {isViewingResume ? "Opening…" : "View current resume"}
+            </button>
           </div>
         )}
 
