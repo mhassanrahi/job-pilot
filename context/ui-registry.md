@@ -130,7 +130,7 @@ Last updated: 2026-06-21
 | Props              | `resumeUrl: string \| null` — passed from Server Component           |
 
 **Pattern notes:**
-Upload happens immediately on file select (no Save needed). File input is hidden; "Select Resume" button triggers `fileInputRef.current?.click()`. Upload status shown inline in the dashed area text (idle / uploading / done / error). `useTransition` provides `isPending` for disabling the button during upload.
+Upload happens immediately on file select (no Save needed). File input is hidden; "Select Resume" button triggers `fileInputRef.current?.click()`. After upload succeeds, POST `/api/resume/extract` is called automatically — no user action required. Phase state: `idle → uploading → extracting → complete | error`. Status text shown inline in the dashed area. `onExtracted` callback fires with `ExtractedFields` when extraction succeeds; extraction failure is silent (upload still completes). Props: `resumeUrl: string | null`, `onExtracted: (fields: ExtractedFields) => void`.
 
 ---
 
@@ -159,7 +159,7 @@ Last updated: 2026-06-21
 | Disabled input     | `opacity-60 cursor-not-allowed` (email field — read-only)            |
 
 **Pattern notes:**
-Section headings use `text-text-dark` (not `text-text-primary`) — one shade lighter than card title. Card title uses `text-text-primary`. Field labels are `text-[11px]` uppercase tracking-wide — not `text-xs` — to match the design's finer label weight. Select elements need a wrapper div for the ChevronDown overlay; the select itself gets `appearance-none` to hide the native arrow. Tag container uses `focus-within` (not `focus`) so the ring appears when the embedded input is focused.
+Accepts `extractedFields: ExtractedFields | null` prop. A `useEffect` watches this prop and merges extracted values into `form` state when it changes — scalar fields overwrite existing values, array fields (skills, industries, workExperience) only replace if the extracted array is non-empty. Preferences (remotePreference, salaryExpectation, jobTitlesSeeking, preferredLocations) are never touched by extraction. Section headings use `text-text-dark` (not `text-text-primary`) — one shade lighter than card title. Card title uses `text-text-primary`. Field labels are `text-[11px]` uppercase tracking-wide — not `text-xs` — to match the design's finer label weight. Select elements need a wrapper div for the ChevronDown overlay; the select itself gets `appearance-none` to hide the native arrow. Tag container uses `focus-within` (not `focus`) so the ring appears when the embedded input is focused.
 
 ---
 

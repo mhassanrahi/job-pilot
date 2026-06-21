@@ -9,7 +9,7 @@
 | Cloud browser                  | Browserbase              | Company research — browsing company public pages |
 | AI browser control             | Stagehand                | Company page interaction and content extraction  |
 | Job Discovery                  | Adzuna API               | Job search and discovery                         |
-| AI model                       | OpenAI GPT-4o            | Matching, research synthesis, extraction         |
+| AI model                       | OpenAI nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free            | Matching, research synthesis, extraction         |
 | Analytics                      | PostHog                  | Event tracking and dashboard charts              |
 | PDF generation                 | @react-pdf/renderer      | Resume PDF rendering                             |
 | Styling                        | Tailwind CSS + shadcn/ui | UI components and styling                        |
@@ -56,10 +56,10 @@
 │       │   ├── generate/route.ts          → Generate base resume PDF from profile
 │       │   └── extract/route.ts           → Extract profile data from uploaded resume PDF
 ├── agent/
-│   ├── adzuna.ts                          → Adzuna API job discovery + GPT-4o scoring
-│   ├── research.ts                        → Company research — Browserbase + Stagehand + GPT-4o
-│   ├── matcher.ts                         → GPT-4o job matching logic
-│   ├── extractor.ts                       → GPT-4o job description extraction + structuring
+│   ├── adzuna.ts                          → Adzuna API job discovery + nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free scoring
+│   ├── research.ts                        → Company research — Browserbase + Stagehand + nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
+│   ├── matcher.ts                         → nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free job matching logic
+│   ├── extractor.ts                       → nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free job description extraction + structuring
 │   └── types.ts                           → Agent-specific TypeScript types
 ├── actions/
 │   ├── profile.ts                         → Profile save + update
@@ -146,7 +146,7 @@ Calls agent/adzuna.ts
         ↓
 Adzuna API returns job listings
         ↓
-GPT-4o scores each job against user profile
+nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free scores each job against user profile
         ↓
 Agent writes results to InsForge DB
         ↓
@@ -166,7 +166,7 @@ Single Browserbase session opens with Stagehand
         ↓
 Navigates to company homepage + sub pages
         ↓
-GPT-4o synthesizes dossier from extracted content
+nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free synthesizes dossier from extracted content
         ↓
 Dossier saved to jobs.company_research
         ↓
@@ -180,7 +180,7 @@ User uploads resume or clicks Generate
         ↓
 API route in app/api/resume/
         ↓
-GPT-4o processes content
+nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free processes content
         ↓
 @react-pdf/renderer renders PDF buffer
         ↓
@@ -257,7 +257,7 @@ URL saved to profiles table
 | benefits           | text[]      | Optional                                       |
 | about_company      | text        | Brief company description                      |
 | match_score        | integer     | 0-100 scored against main profile              |
-| match_reason       | text        | GPT-4o explanation                             |
+| match_reason       | text        | nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free explanation                             |
 | matched_skills     | text[]      | Skills user has that match                     |
 | missing_skills     | text[]      | Skills user lacks                              |
 | company_research   | jsonb       | Company dossier from research agent            |
@@ -381,7 +381,7 @@ const stagehand = new Stagehand({
   apiKey: process.env.BROWSERBASE_API_KEY!,
   projectId: process.env.BROWSERBASE_PROJECT_ID!,
   browserbaseSessionID: session.id,
-  modelName: "gpt-4o",
+  modelName: "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
   modelClientOptions: { apiKey: process.env.OPENAI_API_KEY! },
 });
 
@@ -403,7 +403,7 @@ try {
   await page.waitForLoadState("networkidle");
   const content = await stagehand.extract({ instruction: "..." });
 } catch (error) {
-  // Log and continue — GPT-4o will synthesize from what was found
+  // Log and continue — nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free will synthesize from what was found
   await logAgentError(jobId, error);
 }
 
@@ -423,7 +423,7 @@ Rules the AI agent must never violate:
 - All InsForge server-side writes use `createInsforgeServer()` — never the browser client.
 - No hardcoded hex values or raw Tailwind color classes in components — use CSS variables from ui-tokens.md.
 - Every Stagehand action is wrapped in try/catch. Failures are logged to agent_logs, never thrown to crash the run.
-- Company research always returns a dossier — even if browser research fails, GPT-4o synthesizes from company name and job description alone. Never return empty.
+- Company research always returns a dossier — even if browser research fails, nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free synthesizes from company name and job description alone. Never return empty.
 - Browserbase sessions are always closed with stagehand.close() when done — never leave sessions open.
 - Always scope InsForge queries to the current user_id — never query without a user filter.
 - Adzuna API always includes category=it-jobs — never search without this filter.

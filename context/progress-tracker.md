@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Phase:** Phase 2 — Profile Page
-**Last completed:** 06 Profile Save Logic
-**Next:** 07 AI Profile Extraction from Resume
+**Last completed:** 07 AI Profile Extraction from Resume
+**Next:** 08 Resume PDF Generation from Profile
 
 ---
 
@@ -25,7 +25,7 @@ Update this file after every completed feature. Any AI agent reading this should
 
 - [x] 05 Profile Page — Full UI
 - [x] 06 Profile Save Logic
-- [ ] 07 AI Profile Extraction from Resume
+- [x] 07 AI Profile Extraction from Resume
 - [ ] 08 Resume PDF Generation from Profile
 
 ### Phase 3 — Find Jobs Page
@@ -57,6 +57,10 @@ Update this file after every completed feature. Any AI agent reading this should
 - **Storage upload has no options**: `upload(path, file)` takes only 2 args — no `upsert`, no `contentType`. Each upload at the same path may auto-rename; URL from `data.url` is always correct
 - **is_complete required fields**: fullName + phone + location + currentTitle + skills(≥1) + institutionName — maps to the 3 banner pills (PHONE, LOCATION, EDUCATION)
 - **Resume upload is immediate**: triggers on file select, independent of Save Profile — uses `useTransition` + `uploadResume` server action
+- **pdf-parse import**: `moduleResolution: "bundler"` resolves to ESM stub (no default export) — use `require("pdf-parse")` with explicit type cast; `serverExternalPackages: ["pdf-parse"]` in next.config.ts handles runtime
+- **Extraction is automatic**: after upload success, POST `/api/resume/extract` fires immediately (no button) — extraction failure is silent, upload success is not affected
+- **State sharing via ProfilePageClient**: `ResumeSection` and `ProfileForm` are siblings; `ProfilePageClient.tsx` (thin client wrapper) holds `extractedFields` state and passes `onExtracted` / `extractedFields` props to each
+- **OpenRouter model for extraction**: `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` via `OPENROUTER_API_KEY` — uses `openai` package with `baseURL: "https://openrouter.ai/api/v1"`
 
 ---
 
