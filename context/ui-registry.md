@@ -80,6 +80,89 @@ After building any component — update this file with the component name, file 
 
 ---
 
+### Profile
+
+#### CompletionBanner
+**File:** `components/profile/CompletionBanner.tsx`
+Last updated: 2026-06-21
+
+| Property           | Class / Value                                                        |
+| ------------------ | -------------------------------------------------------------------- |
+| Background         | `bg-surface`                                                         |
+| Border             | `border border-border`                                               |
+| Border radius      | `rounded-2xl`                                                        |
+| Shadow             | `shadow-[0px_1px_3px_rgba(0,0,0,0.1),_0px_1px_2px_-1px_rgba(0,0,0,0.1)]` |
+| Spacing            | `p-6` (card), `gap-3` (internal stack), `gap-6` (content ↔ ring)    |
+| Text — primary     | `text-sm font-semibold text-text-primary` (heading)                  |
+| Text — secondary   | `text-sm text-text-secondary leading-relaxed` (body)                 |
+| Alert icon         | `text-error` (AlertCircle, when incomplete)                          |
+| Complete icon      | `text-success` (CheckCircle2, when all fields filled)                |
+| Missing field pill | `px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-warning/10 text-warning tracking-wide` |
+| SVG ring track     | inline `stroke: var(--color-border)`, strokeWidth 8, r 36            |
+| SVG ring progress  | incomplete: `stroke: var(--color-text-primary)`; complete: `stroke: var(--color-success)` |
+| Ring % text        | `text-lg font-bold text-text-primary` (absolutely centered)          |
+| Props              | `missingFields: string[]`, `completionPct: number` — computed server-side in page.tsx |
+
+**Pattern notes:**
+SVG circumference = 2π×36 ≈ 226.2. Dashoffset = 226.2 × (1 − pct/100). Always start from top with `rotate(-90 50 50)`. Percentage text sits in an absolute overlay div, not inside the SVG, to avoid SVG text scaling issues. Component is purely presentational — all data computed from DB profile in the Server Component.
+
+---
+
+#### ResumeSection
+**File:** `components/profile/ResumeSection.tsx`
+Last updated: 2026-06-21
+
+| Property           | Class / Value                                                        |
+| ------------------ | -------------------------------------------------------------------- |
+| Background         | `bg-surface`                                                         |
+| Border             | `border border-border`                                               |
+| Border radius      | `rounded-2xl`                                                        |
+| Shadow             | `shadow-[0px_1px_3px_rgba(0,0,0,0.1),_0px_1px_2px_-1px_rgba(0,0,0,0.1)]` |
+| Card header        | `px-6 py-5 border-b border-border`                                   |
+| Card body          | `p-6 flex flex-col gap-4`                                            |
+| Text — heading     | `text-base font-semibold text-text-primary`                          |
+| Text — subtitle    | `text-sm text-text-secondary`                                        |
+| Text — hint        | `text-xs text-text-muted`                                            |
+| Upload area        | `border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center gap-3 bg-surface-secondary` |
+| Secondary button   | `bg-surface border border-border text-text-primary text-sm font-medium px-4 py-2 rounded-md hover:bg-surface-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed` |
+| Primary button     | `bg-accent text-accent-foreground text-sm font-medium px-4 py-2 rounded-md hover:bg-accent-dark transition-colors` |
+| Current resume link | `text-accent hover:text-accent-dark transition-colors underline underline-offset-2` |
+| Props              | `resumeUrl: string \| null` — passed from Server Component           |
+
+**Pattern notes:**
+Upload happens immediately on file select (no Save needed). File input is hidden; "Select Resume" button triggers `fileInputRef.current?.click()`. Upload status shown inline in the dashed area text (idle / uploading / done / error). `useTransition` provides `isPending` for disabling the button during upload.
+
+---
+
+#### ProfileForm
+**File:** `components/profile/ProfileForm.tsx`
+Last updated: 2026-06-21
+
+| Property           | Class / Value                                                        |
+| ------------------ | -------------------------------------------------------------------- |
+| Background         | `bg-surface`                                                         |
+| Border             | `border border-border`                                               |
+| Border radius      | `rounded-2xl`                                                        |
+| Shadow             | `shadow-[0px_1px_3px_rgba(0,0,0,0.1),_0px_1px_2px_-1px_rgba(0,0,0,0.1)]` |
+| Card header        | `px-6 py-5 border-b border-border`                                   |
+| Card body spacing  | `p-6 flex flex-col gap-8` (between sections), `gap-4` (between fields) |
+| Section heading    | `text-sm font-semibold text-text-dark mb-4`                          |
+| Field label        | `text-[11px] font-medium text-text-secondary uppercase tracking-wide mb-1.5` |
+| Input              | `w-full bg-surface border border-border rounded-md px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent` |
+| Select             | same as input + `appearance-none` + absolutely-positioned `<ChevronDown w-4 h-4 text-text-muted>` |
+| Tag container      | `border border-border rounded-md p-3 bg-surface min-h-[52px] focus-within:ring-1 focus-within:ring-accent focus-within:border-accent` |
+| Tag pill           | `bg-surface-secondary border border-border rounded-full px-2.5 py-1 text-xs font-medium text-text-dark` |
+| Tag remove button  | `text-text-muted hover:text-text-secondary transition-colors` + `<X w-3 h-3>` |
+| Add tag button     | `flex items-center gap-1 text-sm font-medium text-accent hover:text-accent-dark transition-colors` |
+| Section divider    | `border-t border-border`                                             |
+| Save button        | `w-full bg-accent text-accent-foreground text-sm font-medium py-3 rounded-md hover:bg-accent-dark transition-colors` |
+| Disabled input     | `opacity-60 cursor-not-allowed` (email field — read-only)            |
+
+**Pattern notes:**
+Section headings use `text-text-dark` (not `text-text-primary`) — one shade lighter than card title. Card title uses `text-text-primary`. Field labels are `text-[11px]` uppercase tracking-wide — not `text-xs` — to match the design's finer label weight. Select elements need a wrapper div for the ChevronDown overlay; the select itself gets `appearance-none` to hide the native arrow. Tag container uses `focus-within` (not `focus`) so the ring appears when the embedded input is focused.
+
+---
+
 #### BottomCta
 **File:** `components/homepage/BottomCta.tsx`
 **Background:** `linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)` via inline style

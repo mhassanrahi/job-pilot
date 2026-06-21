@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Phase:** Phase 2 — Profile Page
-**Last completed:** 04 Database Schema
-**Next:** 05 Profile Page — Full UI
+**Last completed:** 06 Profile Save Logic
+**Next:** 07 AI Profile Extraction from Resume
 
 ---
 
@@ -23,8 +23,8 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ### Phase 2 — Profile Page
 
-- [ ] 05 Profile Page — Full UI
-- [ ] 06 Profile Save Logic
+- [x] 05 Profile Page — Full UI
+- [x] 06 Profile Save Logic
 - [ ] 07 AI Profile Extraction from Resume
 - [ ] 08 Resume PDF Generation from Profile
 
@@ -53,6 +53,10 @@ Update this file after every completed feature. Any AI agent reading this should
 - **Profile auto-creation**: `handle_new_user` trigger on `auth.users INSERT` creates a blank profiles row automatically — ensures a row always exists before any agent or profile code runs
 - **`updated_at` trigger**: `handle_updated_at` BEFORE UPDATE trigger on profiles — app code never needs to pass this field explicitly
 - **storage.objects RLS**: InsForge uses `bucket` and `key` columns (not Supabase's `bucket_id`/`name`) — policies use `split_part(key, '/', 1) = auth.uid()::text` to scope to own path
+- **DB API is `insforge.database.from()`**: library-docs.md shows `insforge.from()` but the actual SDK (v latest) requires `insforge.database.from()` — confirmed by TypeScript error in build
+- **Storage upload has no options**: `upload(path, file)` takes only 2 args — no `upsert`, no `contentType`. Each upload at the same path may auto-rename; URL from `data.url` is always correct
+- **is_complete required fields**: fullName + phone + location + currentTitle + skills(≥1) + institutionName — maps to the 3 banner pills (PHONE, LOCATION, EDUCATION)
+- **Resume upload is immediate**: triggers on file select, independent of Save Profile — uses `useTransition` + `uploadResume` server action
 
 ---
 
