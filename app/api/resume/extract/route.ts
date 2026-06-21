@@ -3,7 +3,7 @@ import "pdf-parse/worker";
 import { PDFParse } from "pdf-parse";
 import { NextRequest, NextResponse } from "next/server";
 import { createInsforgeServer } from "@/lib/insforge-server";
-import OpenAI from "openai";
+import OpenAI, { APIConnectionTimeoutError } from "openai";
 import type { ExtractedFields } from "@/actions/profile";
 
 const SYSTEM_PROMPT = `You are a resume parser. Extract structured profile information from the resume text provided. Return ONLY valid JSON — no markdown, no code blocks, no explanation.
@@ -93,7 +93,11 @@ export async function POST(_req: NextRequest) {
       );
     }
 
-    const pdfResponse = await fetch(signedData.signedUrl);
+    const pdfController = new AbortController();
+    const pdfTimeoutId = setTimeout(() => pdfController.abort(), 30_000);
+    const pdfResponse = await fetch(signedData.signedUrl, { signal: pdfController.signal }).finally(
+      () => clearTimeout(pdfTimeoutId),
+    );
     if (!pdfResponse.ok) {
       return NextResponse.json(
         { success: false, error: "Failed to download resume from storage." },
@@ -128,15 +132,18 @@ export async function POST(_req: NextRequest) {
       baseURL: "https://openrouter.ai/api/v1",
     });
 
-    const response = await openai.chat.completions.create({
-      model: process.env.OPENROUTER_MODEL!,
-      temperature: 0.3,
-      max_tokens: 8000,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: `Resume text:\n\n${extractedText}` },
-      ],
-    });
+    const response = await openai.chat.completions.create(
+      {
+        model: process.env.OPENROUTER_MODEL!,
+        temperature: 0.3,
+        max_tokens: 8000,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: `Resume text:\n\n${extractedText}` },
+        ],
+      },
+      { timeout: 60_000 },
+    );
 
     const message = response.choices[0]?.message;
     const content = message?.content ?? "";
@@ -146,7 +153,7 @@ export async function POST(_req: NextRequest) {
     const extracted = parseJsonSafe(rawText);
 
     if (!extracted) {
-      console.error("[resume/extract] Failed to parse AI response:", content);
+      console.error("[resume/extract] Failed to parse AI response");
       return NextResponse.json(
         { success: false, error: "Failed to parse extracted profile data." },
         { status: 500 },
@@ -155,6 +162,18 @@ export async function POST(_req: NextRequest) {
 
     return NextResponse.json({ success: true, data: extracted });
   } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      return NextResponse.json(
+        { success: false, error: "Request timed out downloading resume." },
+        { status: 504 },
+      );
+    }
+    if (error instanceof APIConnectionTimeoutError) {
+      return NextResponse.json(
+        { success: false, error: "AI extraction timed out." },
+        { status: 504 },
+      );
+    }
     console.error("[resume/extract]", error);
     return NextResponse.json(
       { success: false, error: "Internal server error" },
