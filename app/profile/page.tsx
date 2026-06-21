@@ -36,11 +36,16 @@ export default async function ProfilePage() {
   } = await insforge.auth.getCurrentUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await insforge.database
+  const { data: profile, error } = await insforge.database
     .from("profiles")
     .select("*")
     .eq("id", user.id)
     .single();
+
+  if (error) {
+    console.error("[ProfilePage]", error);
+    throw new Error("Failed to load profile");
+  }
 
   const typedProfile = profile as ProfileRow | null;
   const { missingFields, completionPct } = computeCompletion(typedProfile);
