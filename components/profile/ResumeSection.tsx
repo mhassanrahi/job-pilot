@@ -19,6 +19,7 @@ export function ResumeSection({ resumeUrl, onExtracted }: Props) {
   const [fileName, setFileName] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isViewingResume, setIsViewingResume] = useState(false);
+  const [hasResume, setHasResume] = useState(!!resumeUrl);
 
   async function handleViewResume() {
     setIsViewingResume(true);
@@ -55,6 +56,8 @@ export function ResumeSection({ resumeUrl, onExtracted }: Props) {
         return;
       }
 
+      setHasResume(true);
+
       setPhase("extracting");
 
       try {
@@ -88,7 +91,7 @@ export function ResumeSection({ resumeUrl, onExtracted }: Props) {
   })();
 
   const showViewLink =
-    resumeUrl && phase !== "uploading" && phase !== "extracting" && phase !== "complete";
+    hasResume && phase !== "uploading" && phase !== "extracting";
 
   return (
     <div className="bg-surface rounded-2xl border border-border shadow-[0px_1px_3px_rgba(0,0,0,0.1),_0px_1px_2px_-1px_rgba(0,0,0,0.1)]">
