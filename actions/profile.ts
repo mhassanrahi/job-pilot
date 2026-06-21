@@ -169,6 +169,9 @@ export async function uploadResume(
     if (!file || !(file instanceof File)) {
       return { success: false, error: "No file provided" };
     }
+    if (file.type !== "application/pdf" && !file.name.endsWith(".pdf")) {
+      return { success: false, error: "Only PDF files are accepted" };
+    }
     if (file.size > 5 * 1024 * 1024) {
       return { success: false, error: "File exceeds 5 MB limit" };
     }
