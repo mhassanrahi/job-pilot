@@ -20,6 +20,7 @@ export function ResumeSection({ resumeUrl }: { resumeUrl: string | null }) {
     if (file.size > 5 * 1024 * 1024) {
       setStatus("error");
       setErrorMsg("File exceeds 5 MB limit");
+      e.target.value = "";
       return;
     }
 
