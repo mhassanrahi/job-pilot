@@ -15,7 +15,7 @@ Feature 07 AI Profile Extraction from Resume — implemented but debugging still
 - `components/profile/ResumeSection.tsx` — phase state machine (`idle → uploading → extracting → complete | error`); after upload success, automatically POSTs to `/api/resume/extract`; `onExtracted` callback fires with parsed fields; extraction failure is silent (upload still completes)
 - `components/profile/ProfileForm.tsx` — added `extractedFields: ExtractedFields | null` prop + `useEffect` that merges extracted values into form state when prop changes; preference fields never touched
 - `app/profile/page.tsx` — replaced `<ResumeSection>` + `<ProfileForm>` with `<ProfilePageClient initialData={...} resumeUrl={...} />`
-- `next.config.ts` — `serverExternalPackages: ["pdf-parse", "@napi-rs/canvas"]`
+- `next.config.ts` — `serverExternalPackages: ["pdf-parse"]`
 - `context/progress-tracker.md` and `context/ui-registry.md` — updated
 
 **Packages installed:** `pdf-parse`, `openai`, `@types/pdf-parse` (later uninstalled — v2 has own types)
