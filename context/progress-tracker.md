@@ -67,7 +67,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - **Storage does not overwrite — save and use the key**: storage auto-renames on conflict (resume.pdf → resume (1).pdf). Always save `uploadData.key` to the DB alongside `uploadData.url`. Before re-uploading, read the stored key and call `remove(storedKey)` — never construct the path yourself, the actual key may differ
 - **Storage URLs are not publicly accessible**: always use `getResumeSignedUrl()` to open a resume in a new tab — never use the raw `uploadData.url` directly
 - **PDF hex colors are intentional**: react-pdf cannot use CSS variables — ui-tokens.md hex values are hardcoded in the PDF StyleSheet; this is the explicit exception to the no-hex rule
-- **Generate button returns URL**: `POST /api/resume/generate` returns `{ success, url }` — `ResumeSection` stores URL in `generatedUrl` state; "View current resume" uses that URL directly without re-fetching a signed URL
+- **Generate button returns URL**: `POST /api/resume/generate` returns `{ success, url }` — `ResumeSection` handles the response; "View current resume" always fetches a signed URL via `getResumeSignedUrl()` before opening in a tab
 
 ---
 
