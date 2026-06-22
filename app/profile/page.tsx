@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { CompletionBanner } from "@/components/profile/CompletionBanner";
-import { ResumeSection } from "@/components/profile/ResumeSection";
-import { ProfileForm } from "@/components/profile/ProfileForm";
+import { ProfilePageClient } from "@/components/profile/ProfilePageClient";
 import { createInsforgeServer } from "@/lib/insforge-server";
 import type { ProfileRow } from "@/actions/profile";
 
@@ -59,8 +58,10 @@ export default async function ProfilePage() {
             missingFields={missingFields}
             completionPct={completionPct}
           />
-          <ResumeSection resumeUrl={typedProfile?.resume_pdf_url ?? null} />
-          <ProfileForm initialData={typedProfile} />
+          <ProfilePageClient
+            initialData={typedProfile}
+            resumeUrl={typedProfile?.resume_pdf_url ?? null}
+          />
         </div>
       </main>
     </div>

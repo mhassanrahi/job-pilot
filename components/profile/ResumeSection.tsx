@@ -3,16 +3,23 @@
 import { useRef, useTransition, useState } from "react";
 import { UploadCloud, FileText, Sparkles } from "lucide-react";
 import { uploadResume, getResumeSignedUrl } from "@/actions/profile";
+import type { ExtractedFields } from "@/actions/profile";
 
-type UploadStatus = "idle" | "uploading" | "done" | "error";
+type Phase = "idle" | "uploading" | "extracting" | "complete" | "error";
 
-export function ResumeSection({ resumeUrl }: { resumeUrl: string | null }) {
+type Props = {
+  resumeUrl: string | null;
+  onExtracted: (fields: ExtractedFields) => void;
+};
+
+export function ResumeSection({ resumeUrl, onExtracted }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPending, startTransition] = useTransition();
-  const [status, setStatus] = useState<UploadStatus>("idle");
+  const [phase, setPhase] = useState<Phase>("idle");
   const [fileName, setFileName] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isViewingResume, setIsViewingResume] = useState(false);
+  const [hasResume, setHasResume] = useState(!!resumeUrl);
 
   async function handleViewResume() {
     setIsViewingResume(true);
@@ -28,7 +35,7 @@ export function ResumeSection({ resumeUrl }: { resumeUrl: string | null }) {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      setStatus("error");
+      setPhase("error");
       setErrorMsg("File exceeds 5 MB limit");
       e.target.value = "";
       return;
@@ -40,19 +47,51 @@ export function ResumeSection({ resumeUrl }: { resumeUrl: string | null }) {
     setErrorMsg(null);
 
     startTransition(async () => {
-      setStatus("uploading");
-      const result = await uploadResume(formData);
-      if (result.success) {
-        setStatus("done");
-      } else {
-        setStatus("error");
-        setErrorMsg(result.error ?? "Upload failed");
+      setPhase("uploading");
+      const uploadResult = await uploadResume(formData);
+
+      if (!uploadResult.success) {
+        setPhase("error");
+        setErrorMsg(uploadResult.error ?? "Upload failed");
+        return;
       }
+
+      setHasResume(true);
+
+      setPhase("extracting");
+
+      try {
+        const res = await fetch("/api/resume/extract", { method: "POST" });
+        const json = (await res.json()) as {
+          success: boolean;
+          data?: ExtractedFields;
+          error?: string;
+        };
+
+        if (json.success && json.data) {
+          onExtracted(json.data);
+        }
+      } catch {
+        // Extraction failure is non-fatal — upload succeeded
+      }
+
+      setPhase("complete");
     });
 
-    // Reset so the same file can be re-selected
     e.target.value = "";
   }
+
+  const statusText = (() => {
+    if (phase === "uploading") return "Uploading…";
+    if (phase === "extracting") return "Extracting profile data…";
+    if (phase === "complete") return (fileName ?? "Resume") + " ✓";
+    if (phase === "error") return errorMsg ?? "Upload failed";
+    if (resumeUrl) return "Resume on file — upload to replace";
+    return "Click to upload or drag and drop";
+  })();
+
+  const showViewLink =
+    hasResume && phase !== "uploading" && phase !== "extracting";
 
   return (
     <div className="bg-surface rounded-2xl border border-border shadow-[0px_1px_3px_rgba(0,0,0,0.1),_0px_1px_2px_-1px_rgba(0,0,0,0.1)]">
@@ -68,17 +107,7 @@ export function ResumeSection({ resumeUrl }: { resumeUrl: string | null }) {
         <div className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center gap-3 bg-surface-secondary">
           <UploadCloud className="w-8 h-8 text-text-muted" />
           <div className="text-center">
-            <p className="text-sm font-medium text-text-primary">
-              {status === "uploading"
-                ? "Uploading…"
-                : status === "done"
-                  ? (fileName ?? "Resume uploaded") + " ✓"
-                  : status === "error"
-                    ? errorMsg ?? "Upload failed"
-                    : resumeUrl
-                      ? "Resume on file — upload to replace"
-                      : "Click to upload or drag and drop"}
-            </p>
+            <p className="text-sm font-medium text-text-primary">{statusText}</p>
             <p className="text-xs text-text-muted mt-1">
               PDF formatting only. Maximum file size 5MB.
             </p>
@@ -97,11 +126,11 @@ export function ResumeSection({ resumeUrl }: { resumeUrl: string | null }) {
             onClick={() => fileInputRef.current?.click()}
             className="bg-surface border border-border text-text-primary text-sm font-medium px-4 py-2 rounded-md hover:bg-surface-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isPending ? "Uploading…" : "Select Resume"}
+            {isPending ? "Processing…" : "Select Resume"}
           </button>
         </div>
 
-        {resumeUrl && status !== "done" && (
+        {showViewLink && (
           <div className="flex items-center gap-2 text-sm text-text-secondary">
             <FileText className="w-4 h-4 shrink-0 text-accent" />
             <button

@@ -308,7 +308,7 @@ Approved dependencies for this project:
 - `@insforge/ssr` — InsForge client
 - `@browserbasehq/sdk` — Browserbase sessions
 - `@browserbasehq/stagehand` — AI browser control
-- `openai` — GPT-4o API
+- `openai` — nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free API
 - `posthog-js` — PostHog browser client
 - `posthog-node` — PostHog server client
 - `@react-pdf/renderer` — Resume PDF generation
