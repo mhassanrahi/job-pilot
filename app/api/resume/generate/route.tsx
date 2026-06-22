@@ -154,11 +154,11 @@ function formatPeriod(exp: WorkExperience): string {
 function buildPrompt(profile: ProfileRow): string {
   const workSection = profile.work_experience?.length
     ? profile.work_experience
-        .map(
-          (e, i) =>
-            `Role ${i + 1}: ${e.jobTitle} at ${e.company} (${formatPeriod(e)})\nResponsibilities: ${e.responsibilities}`,
-        )
-        .join("\n\n")
+      .map(
+        (e, i) =>
+          `Role ${i + 1}: ${e.jobTitle} at ${e.company} (${formatPeriod(e)})\nResponsibilities: ${e.responsibilities}`,
+      )
+      .join("\n\n")
     : "No work experience provided.";
 
   return `You are a professional resume writer. Given the following candidate profile, generate:
@@ -174,7 +174,7 @@ Return ONLY valid JSON in this exact shape:
   ]
 }
 
-The "id" in polishedExperience must match the work experience IDs exactly.
+The "id" in polishedExperience must be the sequential role number as a string ("1", "2", "3", ...) matching the order of roles listed in WORK EXPERIENCE above.
 
 CANDIDATE PROFILE:
 Name: ${profile.full_name ?? "Not provided"}
@@ -252,8 +252,8 @@ function ResumePDF({ profile, generated }: ResumeDocProps) {
         {profile.work_experience && profile.work_experience.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Work Experience</Text>
-            {profile.work_experience.map((exp) => {
-              const bullets = experienceMap.get(exp.id) ?? [exp.responsibilities];
+            {profile.work_experience.map((exp, index) => {
+              const bullets = experienceMap.get(String(index + 1)) ?? [exp.responsibilities];
               return (
                 <View key={exp.id} style={styles.experienceItem}>
                   <View style={styles.experienceHeader}>
