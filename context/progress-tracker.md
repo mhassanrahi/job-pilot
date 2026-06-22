@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Phase:** Phase 2 — Profile Page
-**Last completed:** 07 AI Profile Extraction from Resume
-**Next:** 08 Resume PDF Generation from Profile
+**Last completed:** 08 Resume PDF Generation from Profile
+**Next:** 09 Find Jobs Page — Full UI
 
 ---
 
@@ -26,7 +26,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - [x] 05 Profile Page — Full UI
 - [x] 06 Profile Save Logic
 - [x] 07 AI Profile Extraction from Resume
-- [ ] 08 Resume PDF Generation from Profile
+- [x] 08 Resume PDF Generation from Profile
 
 ### Phase 3 — Find Jobs Page
 
@@ -61,6 +61,13 @@ Update this file after every completed feature. Any AI agent reading this should
 - **Extraction is automatic**: after upload success, POST `/api/resume/extract` fires immediately (no button) — extraction failure is silent, upload success is not affected
 - **State sharing via ProfilePageClient**: `ResumeSection` and `ProfileForm` are siblings; `ProfilePageClient.tsx` (thin client wrapper) holds `extractedFields` state and passes `onExtracted` / `extractedFields` props to each
 - **OpenRouter model for extraction**: `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` via `OPENROUTER_API_KEY` — uses `openai` package with `baseURL: "https://openrouter.ai/api/v1"`
+- **PDF generation route is .tsx**: `app/api/resume/generate/route.tsx` — JSX required for `@react-pdf/renderer` Document/Page components; `@react-pdf/renderer` in `serverExternalPackages`
+- **Storage upload needs Blob**: `insforge.storage.upload()` expects `Blob`, not Node.js `Buffer` — wrap with `new Blob([new Uint8Array(buffer)], { type: "application/pdf" })`
+- **Storage remove takes a single string**: `insforge.storage.from("bucket").remove(key)` — NOT an array like Supabase
+- **Storage does not overwrite — save and use the key**: storage auto-renames on conflict (resume.pdf → resume (1).pdf). Always save `uploadData.key` to the DB alongside `uploadData.url`. Before re-uploading, read the stored key and call `remove(storedKey)` — never construct the path yourself, the actual key may differ
+- **Storage URLs are not publicly accessible**: always use `getResumeSignedUrl()` to open a resume in a new tab — never use the raw `uploadData.url` directly
+- **PDF hex colors are intentional**: react-pdf cannot use CSS variables — ui-tokens.md hex values are hardcoded in the PDF StyleSheet; this is the explicit exception to the no-hex rule
+- **Generate button returns URL**: `POST /api/resume/generate` returns `{ success, url }` — `ResumeSection` handles the response; "View current resume" always fetches a signed URL via `getResumeSignedUrl()` before opening in a tab
 
 ---
 
