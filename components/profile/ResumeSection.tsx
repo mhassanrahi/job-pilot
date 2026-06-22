@@ -5,7 +5,7 @@ import { UploadCloud, FileText, Sparkles } from "lucide-react";
 import { uploadResume, getResumeSignedUrl } from "@/actions/profile";
 import type { ExtractedFields } from "@/actions/profile";
 
-type Phase = "idle" | "uploading" | "extracting" | "complete" | "error";
+type Phase = "idle" | "uploading" | "extracting" | "generating" | "complete" | "error";
 
 type Props = {
   resumeUrl: string | null;
@@ -27,6 +27,26 @@ export function ResumeSection({ resumeUrl, onExtracted }: Props) {
     setIsViewingResume(false);
     if (result.url) {
       window.open(result.url, "_blank", "noopener,noreferrer");
+    }
+  }
+
+  async function handleGenerate() {
+    setPhase("generating");
+    setErrorMsg(null);
+    try {
+      const res = await fetch("/api/resume/generate", { method: "POST" });
+      const json = (await res.json()) as { success: boolean; url?: string; error?: string };
+      if (json.success && json.url) {
+        setHasResume(true);
+        setFileName("Generated resume");
+        setPhase("complete");
+      } else {
+        setPhase("error");
+        setErrorMsg(json.error ?? "Generation failed");
+      }
+    } catch {
+      setPhase("error");
+      setErrorMsg("Failed to connect to generation service");
     }
   }
 
@@ -84,14 +104,16 @@ export function ResumeSection({ resumeUrl, onExtracted }: Props) {
   const statusText = (() => {
     if (phase === "uploading") return "Uploading…";
     if (phase === "extracting") return "Extracting profile data…";
+    if (phase === "generating") return "Generating resume…";
     if (phase === "complete") return (fileName ?? "Resume") + " ✓";
     if (phase === "error") return errorMsg ?? "Upload failed";
     if (resumeUrl) return "Resume on file — upload to replace";
     return "Click to upload or drag and drop";
   })();
 
+  const isBusy = isPending || phase === "generating";
   const showViewLink =
-    hasResume && phase !== "uploading" && phase !== "extracting";
+    hasResume && phase !== "uploading" && phase !== "extracting" && phase !== "generating";
 
   return (
     <div className="bg-surface rounded-2xl border border-border shadow-[0px_1px_3px_rgba(0,0,0,0.1),_0px_1px_2px_-1px_rgba(0,0,0,0.1)]">
@@ -122,7 +144,7 @@ export function ResumeSection({ resumeUrl, onExtracted }: Props) {
           />
           <button
             type="button"
-            disabled={isPending}
+            disabled={isBusy}
             onClick={() => fileInputRef.current?.click()}
             className="bg-surface border border-border text-text-primary text-sm font-medium px-4 py-2 rounded-md hover:bg-surface-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -150,10 +172,12 @@ export function ResumeSection({ resumeUrl, onExtracted }: Props) {
           </p>
           <button
             type="button"
-            className="flex items-center gap-2 bg-accent text-accent-foreground text-sm font-medium px-4 py-2 rounded-md hover:bg-accent-dark transition-colors"
+            disabled={isBusy}
+            onClick={handleGenerate}
+            className="flex items-center gap-2 bg-accent text-accent-foreground text-sm font-medium px-4 py-2 rounded-md hover:bg-accent-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Sparkles className="w-4 h-4" />
-            Generate Resume from Profile
+            {phase === "generating" ? "Generating…" : "Generate Resume from Profile"}
           </button>
         </div>
       </div>

@@ -44,6 +44,7 @@ export type ProfileRow = {
   salary_expectation: string | null;
   cover_letter_tone: string | null;
   resume_pdf_url: string | null;
+  resume_pdf_key: string | null;
   is_complete: boolean;
   created_at: string;
   updated_at: string;
@@ -194,6 +195,18 @@ export async function uploadResume(
       return { success: false, error: "File exceeds 5 MB limit" };
     }
 
+    // Fetch the stored key so we can delete the actual file (auto-rename means path ≠ key)
+    const { data: existing } = await insforge.database
+      .from("profiles")
+      .select("resume_pdf_key")
+      .eq("id", user.id)
+      .single();
+
+    if (existing?.resume_pdf_key) {
+      const { error: removeError } = await insforge.storage.from("resumes").remove(existing.resume_pdf_key);
+      if (removeError) console.error("[uploadResume] remove", removeError);
+    }
+
     const { data: uploadData, error: uploadError } = await insforge.storage
       .from("resumes")
       .upload(`${user.id}/resume.pdf`, file);
@@ -203,11 +216,9 @@ export async function uploadResume(
       return { success: false, error: "Failed to upload resume" };
     }
 
-    const url = uploadData.url;
-
     const { error: dbError } = await insforge.database
       .from("profiles")
-      .update({ resume_pdf_url: url })
+      .update({ resume_pdf_url: uploadData.url, resume_pdf_key: uploadData.key })
       .eq("id", user.id);
 
     if (dbError) {
@@ -220,7 +231,7 @@ export async function uploadResume(
     const posthog = getPostHogClient();
     posthog.capture({ distinctId: user.id, event: "resume_uploaded" });
 
-    return { success: true, url };
+    return { success: true, url: uploadData.url };
   } catch (err) {
     console.error("[uploadResume]", err);
     return { success: false, error: "Failed to upload resume" };
