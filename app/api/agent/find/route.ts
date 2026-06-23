@@ -56,14 +56,14 @@ export async function POST(req: NextRequest) {
 
     const { data: runData, error: runError } = await insforge.database
       .from("agent_runs")
-      .insert({
+      .insert([{
         user_id: user.id,
         status: "running",
         job_title_searched: jobTitle,
         location_searched: location,
         jobs_found: 0,
         started_at: new Date().toISOString(),
-      })
+      }])
       .select("id")
       .single();
 
@@ -107,8 +107,6 @@ export async function POST(req: NextRequest) {
         properties: { userId: user.id, source: "search", matchScore },
       });
     }
-
-    await posthog.shutdown();
 
     function formatFoundAt(iso: string): string {
       const diffH = Math.floor((Date.now() - new Date(iso).getTime()) / 3_600_000);
