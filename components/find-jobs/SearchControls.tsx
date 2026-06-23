@@ -1,9 +1,11 @@
-import { Search, Sparkles } from "lucide-react";
+import { Search, Sparkles, Loader2 } from "lucide-react";
 
 type Props = {
   jobTitle: string;
   location: string;
   showSuccess: boolean;
+  isSearching: boolean;
+  successMessage: string;
   onJobTitleChange: (value: string) => void;
   onLocationChange: (value: string) => void;
   onSearch: () => void;
@@ -13,6 +15,8 @@ export function SearchControls({
   jobTitle,
   location,
   showSuccess,
+  isSearching,
+  successMessage,
   onJobTitleChange,
   onLocationChange,
   onSearch,
@@ -31,7 +35,8 @@ export function SearchControls({
               value={jobTitle}
               onChange={(e) => onJobTitleChange(e.target.value)}
               placeholder="Frontend Engineer"
-              className="w-full bg-surface border border-border rounded-md pl-9 pr-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent"
+              disabled={isSearching}
+              className="w-full bg-surface border border-border rounded-md pl-9 pr-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent disabled:opacity-50"
             />
           </div>
         </div>
@@ -44,22 +49,33 @@ export function SearchControls({
             value={location}
             onChange={(e) => onLocationChange(e.target.value)}
             placeholder="Remote, New York..."
-            className="w-full bg-surface border border-border rounded-md px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent"
+            disabled={isSearching}
+            className="w-full bg-surface border border-border rounded-md px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent disabled:opacity-50"
           />
         </div>
         <button
           onClick={onSearch}
-          className="bg-accent text-accent-foreground text-sm font-medium px-4 py-2 rounded-md hover:bg-accent-dark transition-colors flex items-center gap-2 shrink-0"
+          disabled={isSearching}
+          className="bg-accent text-accent-foreground text-sm font-medium px-4 py-2 rounded-md hover:bg-accent-dark transition-colors flex items-center gap-2 shrink-0 disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          <Search className="w-4 h-4" />
-          Find Jobs
+          {isSearching ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Searching...
+            </>
+          ) : (
+            <>
+              <Search className="w-4 h-4" />
+              Find Jobs
+            </>
+          )}
         </button>
       </div>
       {showSuccess && (
         <div className="bg-success-lightest rounded-lg px-4 py-3 flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-success shrink-0" />
           <span className="text-sm font-medium text-success-foreground">
-            Found 8 jobs and saved 4 strong matches.
+            {successMessage}
           </span>
         </div>
       )}

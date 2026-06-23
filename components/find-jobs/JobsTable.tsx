@@ -14,10 +14,12 @@ function getScoreColor(score: number): string {
   return "bg-warning";
 }
 
+const COLS = "grid-cols-[minmax(0,2fr)_minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]";
+
 export function JobsTable({ jobs }: Props) {
   return (
     <div className="w-full">
-      <div className="grid grid-cols-[2fr_2fr_1.5fr_1fr_1fr] gap-4 px-6 py-3 border-b border-border">
+      <div className={`grid ${COLS} gap-4 px-6 py-3 border-b border-border`}>
         <span className="text-xs font-medium text-text-secondary uppercase tracking-wide">Company</span>
         <span className="text-xs font-medium text-text-secondary uppercase tracking-wide">Role</span>
         <span className="text-xs font-medium text-text-secondary uppercase tracking-wide">Match Score</span>
@@ -34,28 +36,45 @@ export function JobsTable({ jobs }: Props) {
           <Link
             key={job.id}
             href={`/find-jobs/${job.id}`}
-            className="grid grid-cols-[2fr_2fr_1.5fr_1fr_1fr] gap-4 px-6 py-4 border-b border-border hover:bg-surface-secondary transition-colors cursor-pointer items-center"
+            className={`grid ${COLS} gap-4 px-6 py-4 border-b border-border hover:bg-surface-secondary transition-colors cursor-pointer items-center`}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-surface-tertiary border border-border flex items-center justify-center shrink-0">
                 <Building2 className="w-4 h-4 text-text-muted" />
               </div>
-              <span className="text-sm font-medium text-text-primary">{job.company}</span>
+              <span
+                className="text-sm font-medium text-text-primary truncate min-w-0"
+                title={job.company}
+              >
+                {job.company}
+              </span>
             </div>
-            <span className="text-sm text-text-primary">{job.role}</span>
-            <div className="flex items-center gap-2">
+            <span
+              className="text-sm text-text-primary truncate min-w-0"
+              title={job.role}
+            >
+              {job.role}
+            </span>
+            <div className="flex items-center gap-2 min-w-0">
               <div className="flex-1 h-1 rounded-full bg-border-light overflow-hidden">
                 <div
                   className={`h-1 rounded-full ${getScoreColor(job.matchScore)}`}
                   style={{ width: `${job.matchScore}%` }}
                 />
               </div>
-              <span className="text-sm font-medium text-text-primary w-9 text-right">
+              <span className="text-sm font-medium text-text-primary w-9 text-right shrink-0">
                 {job.matchScore}%
               </span>
             </div>
-            <span className="text-sm text-text-primary">{job.salary}</span>
-            <span className="text-sm text-text-muted">{job.dateFound}</span>
+            <span
+              className="text-sm text-text-primary truncate min-w-0"
+              title={job.salary}
+            >
+              {job.salary}
+            </span>
+            <span className="text-sm text-text-muted truncate min-w-0">
+              {job.dateFound}
+            </span>
           </Link>
         ))
       )}

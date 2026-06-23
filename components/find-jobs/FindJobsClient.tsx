@@ -15,27 +15,61 @@ export type Job = {
   dateFound: string;
 };
 
-const MOCK_JOBS: Job[] = [
-  { id: "1", company: "Vercel",  role: "Senior Frontend Engineer",  matchScore: 94, salary: "$160k–$200k", dateFound: "2 hours ago" },
-  { id: "2", company: "Stripe",  role: "Staff UI Engineer",          matchScore: 88, salary: "$180k–$240k", dateFound: "Yesterday"   },
-  { id: "3", company: "Linear",  role: "Product Engineer",           matchScore: 96, salary: "$150k–$190k", dateFound: "Yesterday"   },
-  { id: "4", company: "Notion",  role: "Frontend Developer",         matchScore: 72, salary: "$130k–$170k", dateFound: "2 days ago"  },
-  { id: "5", company: "OpenAI",  role: "Design Engineer",            matchScore: 91, salary: "$200k–$280k", dateFound: "3 days ago"  },
-  { id: "6", company: "Figma",   role: "Software Engineer, Editor",  matchScore: 85, salary: "$170k–$220k", dateFound: "4 days ago"  },
-];
+const PAGE_SIZE = 6;
 
 export function FindJobsClient() {
   const [jobTitle, setJobTitle] = useState("");
   const [location, setLocation] = useState("");
-  const [showSuccess, setShowSuccess] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [searchError, setSearchError] = useState("");
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [filterText, setFilterText] = useState("");
   const [matchFilter, setMatchFilter] = useState<"all" | "high" | "low">("all");
   const [sortBy, setSortBy] = useState<"match_score" | "newest" | "oldest">("match_score");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const PAGE_SIZE = 6;
+  async function handleSearch() {
+    if (!jobTitle.trim() || isSearching) return;
 
-  const filtered = MOCK_JOBS.filter((job) => {
+    setIsSearching(true);
+    setShowSuccess(false);
+    setSearchError("");
+
+    try {
+      const res = await fetch("/api/agent/find", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobTitle, location }),
+      });
+
+      const json = (await res.json()) as {
+        success: boolean;
+        data?: { jobsFound: number; strongMatches: number; jobs: Job[] };
+        error?: string;
+      };
+
+      if (json.success && json.data) {
+        const { jobsFound, strongMatches, jobs: found } = json.data;
+        setJobs(found);
+        setSuccessMessage(
+          `Found ${jobsFound} job${jobsFound !== 1 ? "s" : ""} and saved ${strongMatches} strong match${strongMatches !== 1 ? "es" : ""}.`,
+        );
+        setShowSuccess(true);
+        setCurrentPage(1);
+      } else {
+        setSearchError(json.error ?? "Search failed. Please try again.");
+      }
+    } catch (err) {
+      console.error("[FindJobsClient] search", err);
+      setSearchError("Search failed. Please try again.");
+    } finally {
+      setIsSearching(false);
+    }
+  }
+
+  const filtered = jobs.filter((job) => {
     if (filterText) {
       const q = filterText.toLowerCase();
       if (!job.company.toLowerCase().includes(q) && !job.role.toLowerCase().includes(q)) return false;
@@ -47,8 +81,8 @@ export function FindJobsClient() {
 
   const sorted = [...filtered].sort((a, b) => {
     if (sortBy === "match_score") return b.matchScore - a.matchScore;
-    const aIdx = MOCK_JOBS.findIndex((j) => j.id === a.id);
-    const bIdx = MOCK_JOBS.findIndex((j) => j.id === b.id);
+    const aIdx = jobs.findIndex((j) => j.id === a.id);
+    const bIdx = jobs.findIndex((j) => j.id === b.id);
     return sortBy === "newest" ? aIdx - bIdx : bIdx - aIdx;
   });
 
@@ -62,10 +96,17 @@ export function FindJobsClient() {
         jobTitle={jobTitle}
         location={location}
         showSuccess={showSuccess}
+        isSearching={isSearching}
+        successMessage={successMessage}
         onJobTitleChange={setJobTitle}
         onLocationChange={setLocation}
-        onSearch={() => setShowSuccess(true)}
+        onSearch={handleSearch}
       />
+      {searchError && (
+        <div className="bg-error-lightest rounded-lg px-4 py-3 text-sm font-medium text-error">
+          {searchError}
+        </div>
+      )}
       <div className="bg-surface rounded-2xl border border-border shadow-sm">
         <JobFilters
           filterText={filterText}
