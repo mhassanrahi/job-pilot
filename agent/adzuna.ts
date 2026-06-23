@@ -138,6 +138,6 @@ export async function discoverJobs(
     };
   } catch (err) {
     console.error("[agent/adzuna]", err);
-    return { success: false, jobsFound: 0, strongMatches: 0, matchScores: [], insertedJobs: [], error: String(err) };
+    return { success: false, jobsFound: 0, strongMatches: 0, matchScores: [], insertedJobs: [], error: "Job discovery failed. Please try again later." };
   }
 }
