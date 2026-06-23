@@ -26,8 +26,8 @@ export function JobsPagination({
   pageSize,
   onPageChange,
 }: Props) {
-  const startResult = (currentPage - 1) * pageSize + 1;
-  const endResult = Math.min(currentPage * pageSize, totalResults);
+  const startResult = totalResults === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const endResult = totalResults === 0 ? 0 : Math.min(currentPage * pageSize, totalResults);
   const pages = getPageNumbers(currentPage, totalPages);
 
   return (
