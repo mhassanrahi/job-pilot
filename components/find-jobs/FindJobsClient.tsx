@@ -43,7 +43,7 @@ export function FindJobsClient() {
         onLocationChange={setLocation}
         onSearch={() => setShowSuccess(true)}
       />
-      <div className="bg-surface rounded-2xl border border-border shadow-[0px_1px_3px_rgba(0,0,0,0.1),_0px_1px_2px_-1px_rgba(0,0,0,0.1)]">
+      <div className="bg-surface rounded-2xl border border-border shadow-sm">
         <JobFilters
           filterText={filterText}
           matchFilter={matchFilter}
