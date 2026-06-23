@@ -298,7 +298,7 @@ const stagehand = new Stagehand({
   apiKey: process.env.BROWSERBASE_API_KEY!,
   projectId: process.env.BROWSERBASE_PROJECT_ID!,
   browserbaseSessionID: session.id,
-  model: { modelName: "openai/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", apiKey: process.env.OPENAI_API_KEY! },
+  model: { modelName: "openai/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", apiKey: process.env.OPENROUTER_API_KEY! },
   disablePino: true,
 });
 
@@ -499,7 +499,7 @@ const response = await openai.chat.completions.create({
 ```typescript
 import OpenAI from "openai";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+const openai = new OpenAI({ apiKey: process.env.OPENROUTER_API_KEY! });
 
 const response = await openai.chat.completions.create({
   model: "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
