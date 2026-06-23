@@ -33,6 +33,29 @@ export function FindJobsClient() {
   const [sortBy, setSortBy] = useState<"match_score" | "newest" | "oldest">("match_score");
   const [currentPage, setCurrentPage] = useState(1);
 
+  const PAGE_SIZE = 6;
+
+  const filtered = MOCK_JOBS.filter((job) => {
+    if (filterText) {
+      const q = filterText.toLowerCase();
+      if (!job.company.toLowerCase().includes(q) && !job.role.toLowerCase().includes(q)) return false;
+    }
+    if (matchFilter === "high" && job.matchScore < 80) return false;
+    if (matchFilter === "low" && job.matchScore >= 80) return false;
+    return true;
+  });
+
+  const sorted = [...filtered].sort((a, b) => {
+    if (sortBy === "match_score") return b.matchScore - a.matchScore;
+    const aIdx = MOCK_JOBS.findIndex((j) => j.id === a.id);
+    const bIdx = MOCK_JOBS.findIndex((j) => j.id === b.id);
+    return sortBy === "newest" ? aIdx - bIdx : bIdx - aIdx;
+  });
+
+  const totalFiltered = sorted.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / PAGE_SIZE));
+  const visibleJobs = sorted.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   return (
     <div className="max-w-[1440px] mx-auto px-8 py-8 flex flex-col gap-6">
       <SearchControls
@@ -48,16 +71,16 @@ export function FindJobsClient() {
           filterText={filterText}
           matchFilter={matchFilter}
           sortBy={sortBy}
-          onFilterTextChange={setFilterText}
-          onMatchFilterChange={setMatchFilter}
-          onSortByChange={setSortBy}
+          onFilterTextChange={(v) => { setFilterText(v); setCurrentPage(1); }}
+          onMatchFilterChange={(v) => { setMatchFilter(v); setCurrentPage(1); }}
+          onSortByChange={(v) => { setSortBy(v); setCurrentPage(1); }}
         />
-        <JobsTable jobs={MOCK_JOBS} />
+        <JobsTable jobs={visibleJobs} />
         <JobsPagination
           currentPage={currentPage}
-          totalPages={8}
-          totalResults={24}
-          pageSize={6}
+          totalPages={totalPages}
+          totalResults={totalFiltered}
+          pageSize={PAGE_SIZE}
           onPageChange={setCurrentPage}
         />
       </div>
