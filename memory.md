@@ -1,54 +1,51 @@
-# Memory — Feature 08 Resume PDF Generation from Profile
+# Memory — Feature 09 Find Jobs Page Full UI
 
-Last updated: 2026-06-22
+Last updated: 2026-06-23
 
 ## What was built
 
-Feature 08 Resume PDF Generation from Profile — fully implemented and verified end-to-end.
+Feature 09 Find Jobs Page Full UI — fully implemented.
 
 **Files created:**
-- `app/api/resume/generate/route.tsx` — POST route: auth → fetch profile from DB → OpenRouter LLM generates `professionalSummary` + `polishedExperience` bullets → `@react-pdf/renderer` renders PDF buffer → delete existing storage file using stored key → upload blob → save `url` + `key` to profiles table → return `{ success, url }`
+- `app/find-jobs/page.tsx` — Server Component, default export, renders FindJobsClient
+- `components/find-jobs/FindJobsClient.tsx` — "use client". Exports `Job` type + FindJobsClient. Owns all state: jobTitle, location, showSuccess (default true), filterText, matchFilter, sortBy, currentPage. Contains MOCK_JOBS array (6 entries). Layout: search card + jobs card wrapper.
+- `components/find-jobs/SearchControls.tsx` — No "use client". JOB TITLE input has Search icon with pl-9; LOCATION input has no icon with px-3. Success banner conditional on showSuccess.
+- `components/find-jobs/JobFilters.tsx` — No "use client". Text filter with Search icon + two dropdowns (All Matches, Match Score sort) with appearance-none + ChevronDown overlay.
+- `components/find-jobs/JobsTable.tsx` — "use client" (uses useRouter). Imports `Job` type from FindJobsClient via `import type`. `getScoreColor()` pure function outside component. 5-column CSS grid. Building2 icon placeholder per company. Score bar uses inline style for dynamic width. Empty state + Adzuna credit.
+- `components/find-jobs/JobsPagination.tsx` — No "use client". `getPageNumbers()` pure function outside component. Active page: bg-accent. Mock values: totalPages=8, totalResults=24, pageSize=6.
 
 **Files modified:**
-- `components/profile/ResumeSection.tsx` — added `generating` phase to state machine; "Generate Resume from Profile" button wired to `handleGenerate()`; `handleViewResume` always uses `getResumeSignedUrl()` (removed `generatedUrl` shortcut that caused 401); both buttons disabled during any active phase
-- `actions/profile.ts` — `uploadResume` now fetches `resume_pdf_key` from DB before uploading, calls `remove(key)` with error logging, saves both `uploadData.url` and `uploadData.key` to profiles; added `resume_pdf_key: string | null` to `ProfileRow` type
-- `next.config.ts` — added `@react-pdf/renderer` to `serverExternalPackages`
-- `context/progress-tracker.md` — updated with Feature 08 complete and all storage patterns documented
-
-**DB changes:**
-- Added `resume_pdf_key text` column to `profiles` table
-- Added `CREATE POLICY "users can delete own resume"` on `storage.objects` — DELETE policy was missing, causing every `remove()` call to be silently rejected by RLS
-
-**Packages installed:** `@react-pdf/renderer`
+- `context/progress-tracker.md` — Feature 09 checked [x], current status updated to Phase 3 / next: Feature 10 Adzuna Job Discovery
+- `context/ui-registry.md` — Appended SearchControls, JobFilters, JobsTable, JobsPagination entries under new "Find Jobs" section
 
 ## Decisions made
 
-- **AI generates narrative only** — LLM writes `professionalSummary` paragraph and `polishedExperience` bullets per role; all structured data (name, contact, skills, education) comes verbatim from the DB
-- **route.tsx not route.ts** — `@react-pdf/renderer` uses JSX; the file must be `.tsx`
-- **Blob not Buffer** — `insforge.storage.upload()` expects `File | Blob`; wrap Node.js Buffer with `new Blob([new Uint8Array(buffer)], { type: "application/pdf" })`
-- **Always use stored key for deletion** — InsForge storage auto-renames on conflict; the actual key after upload can differ from the path you passed; `uploadData.key` must be saved to DB and used for `remove()` — never construct the path yourself
-- **DELETE RLS policy required** — storage objects table needs an explicit DELETE policy; without it `remove()` is silently rejected. Pattern matches existing policies: `bucket = 'resumes'` AND `split_part(key, '/', 1) = auth.uid()::text`
-- **View resume always via signed URL** — raw `uploadData.url` requires auth headers; always call `getResumeSignedUrl()` before opening in a new tab
-- **PDF uses hardcoded hex values** — `@react-pdf/renderer` StyleSheet cannot use CSS variables; hex values from `ui-tokens.md` are hardcoded in the PDF template — this is the explicit exception to the no-hex rule
+- **4 child components + FindJobsClient orchestrator** — Option A architecture
+- **`Job` type exported from FindJobsClient.tsx** — imported via `import type` in JobsTable.tsx to avoid duplication
+- **Filter/sort/pagination state wired to UI but does NOT mutate MOCK_JOBS** — deferred to Feature 11; state is captured, not acted on
+- **Match score bar colors** follow `ui-rules.md`: ≥80% → `bg-success`, 60-79% → `bg-info`, <60% → `bg-warning`
+- **showSuccess defaults to true** — banner always visible with mock data; real toggle works, just no jobs to hide
+- **No explicit return types on components** — React 19 removed the global `JSX` namespace; `JSX.Element` causes TypeScript errors; project pattern is to omit return type annotations entirely
 
 ## Problems solved
 
-- **Multiple resume files per user** — three-layer fix: (1) save `uploadData.key` to DB, (2) call `remove(storedKey)` before uploading, (3) add DELETE RLS policy that was missing — all three were required together
-- **401 on "View current resume" after generation** — raw storage URL requires auth; removed `generatedUrl` shortcut, `handleViewResume` now always fetches a signed URL
-- **`remove()` silently failing** — no error was checked; added `console.error` on remove failure so future issues are visible
-- **`remove()` accepts single string not array** — InsForge SDK `remove(path)` takes a string, not `string[]` like Supabase
+- **`Cannot find namespace 'JSX'` TypeScript error** — React 19 removed the global `JSX` namespace. Removing `: JSX.Element` return type annotations from all 6 files fixes it. Existing project components never had explicit return type annotations — follow that pattern.
+- **Type narrowing for pagination** — used if/return early exit pattern instead of `page as number` cast to satisfy TypeScript strict mode
 
 ## Current state
 
-Feature 08 is complete and verified. Storage correctly maintains one file per user. Viewing works via signed URL. Generation → upload → view flow is end-to-end correct.
+Feature 09 is complete and committed. The `job-search` branch has NOT been merged to `main` or pushed to remote. A decision is pending: merge locally, push+PR, keep as-is, or discard. Visual verification against the design PNG has not been done this session (dev server not started).
 
 ## Next session starts with
 
-Move to Feature 09 — Find Jobs Page Full UI. Before starting: run `/remember restore`, read context files per AGENTS.md order, run `/architect` before touching any code.
+1. Decide what to do with `job-search` branch (merge to main, push+PR, or keep)
+2. Then move to Feature 10 — Adzuna Job Discovery
+3. Before Feature 10: run `/remember restore`, read context files per AGENTS.md order, run `/architect`
 
 ## Open questions
 
-- **Defensive upsert in `saveProfile`** — still uses pure `.update()`; if trigger fails or row deleted, saves silently no-op. Should upsert before shipping (carried over from Feature 06)
+- **Branch decision pending** — `job-search` not yet merged or pushed; choose: merge locally / push+PR / keep as-is
+- **Visual verification** — page not tested in browser against `context/designs/find-jobs.png` this session
+- **Defensive upsert in `saveProfile`** — still uses pure `.update()`; if trigger fails or row deleted, saves silently no-op (carried over from Feature 06)
 - **OAuth redirect URLs** — need to be registered in InsForge dashboard before production auth testing (carried over from Feature 02)
 - **PostHog session-restore identify** — `identify` only runs in OAuth callback; consider adding on authenticated page loads (carried over from Feature 03)
-- **Stale resume files in storage** — any files accumulated before the delete fix (resume (1).pdf, resume (2).pdf etc.) must be manually deleted from the InsForge storage dashboard

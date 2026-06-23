@@ -170,3 +170,85 @@ Accepts `extractedFields: ExtractedFields | null` prop. A `useEffect` watches th
 **Subtext:** `color: rgba(255, 255, 255, 0.8)` via inline style
 **Primary button:** `bg-accent-foreground text-accent text-sm font-medium px-5 py-2.5 rounded-md`
 **Outline button:** `border border-accent-foreground text-accent-foreground text-sm font-medium px-5 py-2.5 rounded-md`
+
+---
+
+### Find Jobs
+
+#### SearchControls
+**File:** `components/find-jobs/SearchControls.tsx`
+Last updated: 2026-06-23
+
+| Property | Class / Value |
+| --- | --- |
+| Card | `bg-surface rounded-2xl border border-border shadow-[0px_1px_3px_rgba(0,0,0,0.1),_0px_1px_2px_-1px_rgba(0,0,0,0.1)] p-6 flex flex-col gap-4` |
+| Input row | `flex items-end gap-4` |
+| Field label | `block text-[11px] font-medium text-text-secondary uppercase tracking-wide mb-1.5` |
+| Input with icon | `w-full bg-surface border border-border rounded-md pl-9 pr-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent` |
+| Input no icon | `w-full bg-surface border border-border rounded-md px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent` |
+| Find Jobs button | `bg-accent text-accent-foreground text-sm font-medium px-4 py-2 rounded-md hover:bg-accent-dark transition-colors flex items-center gap-2 shrink-0` |
+| Success banner | `bg-success-lightest rounded-lg px-4 py-3 flex items-center gap-2` |
+| Success text | `text-sm font-medium text-success-foreground` |
+
+**Pattern notes:**
+Search icon in JOB TITLE input uses `pointer-events-none` so it does not block clicks. LOCATION field has no icon — `px-3` instead of `pl-9`. Success banner shown via `showSuccess` boolean prop; parent sets it to `true` when Find Jobs is clicked.
+
+---
+
+#### JobFilters
+**File:** `components/find-jobs/JobFilters.tsx`
+Last updated: 2026-06-23
+
+| Property | Class / Value |
+| --- | --- |
+| Wrapper | `px-6 py-4 flex items-center gap-3 border-b border-border` |
+| Text filter input | `w-full bg-surface border border-border rounded-md pl-9 pr-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent` |
+| Dropdown select | `appearance-none bg-surface border border-border rounded-md pl-3 pr-8 py-2 text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent cursor-pointer` |
+| Dropdown chevron | `absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none` |
+
+**Pattern notes:**
+`appearance-none` removes the native browser dropdown arrow. ChevronDown icon is positioned absolutely inside a `relative` wrapper. `pointer-events-none` on icon ensures it does not block clicks on the select. Both dropdowns share identical classes.
+
+---
+
+#### JobsTable
+**File:** `components/find-jobs/JobsTable.tsx`
+Last updated: 2026-06-23
+
+| Property | Class / Value |
+| --- | --- |
+| Column header row | `grid grid-cols-[2fr_2fr_1.5fr_1fr_1fr] gap-4 px-6 py-3 border-b border-border` |
+| Column header text | `text-xs font-medium text-text-secondary uppercase tracking-wide` |
+| Job row | `grid grid-cols-[2fr_2fr_1.5fr_1fr_1fr] gap-4 px-6 py-4 border-b border-border hover:bg-surface-secondary transition-colors cursor-pointer items-center` |
+| Company icon box | `w-8 h-8 rounded-lg bg-surface-tertiary border border-border flex items-center justify-center shrink-0` |
+| Company name | `text-sm font-medium text-text-primary` |
+| Role text | `text-sm text-text-primary` |
+| Score bar track | `flex-1 h-1 rounded-full bg-border-light overflow-hidden` |
+| Score bar fill | `h-1 rounded-full` + `bg-success` / `bg-info` / `bg-warning` by score range |
+| Score % text | `text-sm font-medium text-text-primary w-9 text-right` |
+| Salary text | `text-sm text-text-primary` |
+| Date text | `text-sm text-text-muted` |
+| Empty state | `px-6 py-16 flex flex-col items-center gap-2` |
+| Adzuna credit | `px-6 py-3 text-xs text-text-muted` |
+
+**Pattern notes:**
+Score color: ≥80 → `bg-success`, 60–79 → `bg-info`, <60 → `bg-warning`. Bar fill uses inline `style={{ width: \`${score}%\` }}` — the only inline style; dynamic percentage width cannot be done with a static class. `overflow-hidden` on track prevents fill from overflowing at edge values. `"use client"` required because `useRouter` is used for row click navigation. `Job` type is imported from `FindJobsClient.tsx` — not redefined.
+
+---
+
+#### JobsPagination
+**File:** `components/find-jobs/JobsPagination.tsx`
+Last updated: 2026-06-23
+
+| Property | Class / Value |
+| --- | --- |
+| Wrapper | `px-6 py-4 flex items-center justify-between border-t border-border` |
+| Result count text | `text-sm text-text-muted` |
+| Count emphasis | `font-medium text-text-primary` |
+| Prev/Next button | `px-3 py-1.5 text-sm text-text-secondary border border-border rounded-md hover:bg-surface-secondary disabled:opacity-40 disabled:cursor-not-allowed transition-colors` |
+| Active page button | `w-8 h-8 text-sm rounded-md bg-accent text-accent-foreground transition-colors` |
+| Inactive page button | `w-8 h-8 text-sm rounded-md text-text-secondary hover:bg-surface-secondary transition-colors` |
+| Ellipsis | `px-2 py-1.5 text-sm text-text-muted select-none` |
+
+**Pattern notes:**
+`getPageNumbers()` is a pure function outside the component — takes currentPage and totalPages, returns `(number | "...")[]`. For totalPages ≤ 5 shows all pages. For larger counts: first 3 pages show [1,2,3,...,N]; last 3 show [1,...,N-2,N-1,N]; middle shows [1,...,current,...,N]. Type is narrowed via if/return pattern (no `as number` cast needed). Ellipsis items use index-based keys to avoid React key conflicts.

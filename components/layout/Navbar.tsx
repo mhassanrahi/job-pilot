@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import posthog from "posthog-js";
 import { CtaLink } from "@/components/homepage/CtaLink";
+import { Logo } from "./Logo";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -14,21 +15,15 @@ export function Navbar() {
   };
 
   const navClass = (href: string) =>
-    `text-sm font-medium transition-colors ${
-      pathname === href
-        ? "text-accent"
-        : "text-text-dark hover:text-accent"
+    `text-sm font-medium transition-colors ${pathname === href
+      ? "text-accent"
+      : "text-text-dark hover:text-accent"
     }`;
 
   return (
     <header className="w-full bg-surface border-b border-border">
       <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="JobPilot logo" width={36} height={36} />
-          <span className="text-[19px] font-bold leading-7 text-text-darkest">
-            JobPilot
-          </span>
-        </Link>
+        <Logo priority />
 
         <nav className="flex items-center gap-8">
           <Link
