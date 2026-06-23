@@ -169,7 +169,7 @@ Build the complete Find Jobs page UI with mock data. No logic yet.
   - Success message area below controls — green banner: "Found 8 jobs and saved 4 strong matches."
 - Job list section below:
   - Filter bar: text search input "Filter by company or role...", All Matches dropdown, Match Score sort dropdown
-  - Jobs table with columns: COMPANY, ROLE, MATCH SCORE (color coded progress bar + percentage), SALARY EST., SOURCE (Search/URL badge), DATE FOUND
+  - Jobs table with columns: COMPANY, ROLE, MATCH SCORE (color coded progress bar + percentage), SALARY EST., DATE FOUND
   - Pagination — "Showing 1 to 6 of 24 results", Previous, page numbers, Next
 
 ---
