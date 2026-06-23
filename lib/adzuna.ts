@@ -35,7 +35,7 @@ const COUNTRY_KEYWORDS: Record<string, string> = {
 export function detectCountry(location: string): string {
   const lower = location.toLowerCase();
   for (const [keyword, code] of Object.entries(COUNTRY_KEYWORDS)) {
-    if (lower.includes(keyword)) return code;
+    if (new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(lower)) return code;
   }
   return "us";
 }
