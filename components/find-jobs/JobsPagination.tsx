@@ -25,7 +25,7 @@ export function JobsPagination({
   totalResults,
   pageSize,
   onPageChange,
-}: Props): JSX.Element {
+}: Props) {
   const startResult = (currentPage - 1) * pageSize + 1;
   const endResult = Math.min(currentPage * pageSize, totalResults);
   const pages = getPageNumbers(currentPage, totalPages);

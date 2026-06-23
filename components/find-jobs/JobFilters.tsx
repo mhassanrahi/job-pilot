@@ -16,7 +16,7 @@ export function JobFilters({
   onFilterTextChange,
   onMatchFilterChange,
   onSortByChange,
-}: Props): JSX.Element {
+}: Props) {
   return (
     <div className="px-6 py-4 flex items-center gap-3 border-b border-border">
       <div className="relative flex-1">

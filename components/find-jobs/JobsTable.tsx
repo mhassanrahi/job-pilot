@@ -14,7 +14,7 @@ function getScoreColor(score: number): string {
   return "bg-warning";
 }
 
-export function JobsTable({ jobs }: Props): JSX.Element {
+export function JobsTable({ jobs }: Props) {
   const router = useRouter();
 
   return (

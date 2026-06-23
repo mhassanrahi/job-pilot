@@ -24,7 +24,7 @@ const MOCK_JOBS: Job[] = [
   { id: "6", company: "Figma",   role: "Software Engineer, Editor",  matchScore: 85, salary: "$170k–$220k", dateFound: "4 days ago"  },
 ];
 
-export function FindJobsClient(): JSX.Element {
+export function FindJobsClient() {
   const [jobTitle, setJobTitle] = useState("");
   const [location, setLocation] = useState("");
   const [showSuccess, setShowSuccess] = useState(true);
