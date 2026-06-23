@@ -18,7 +18,7 @@ export function SearchControls({
   onSearch,
 }: Props) {
   return (
-    <div className="bg-surface rounded-2xl border border-border shadow-[0px_1px_3px_rgba(0,0,0,0.1),_0px_1px_2px_-1px_rgba(0,0,0,0.1)] p-6 flex flex-col gap-4">
+    <div className="bg-surface rounded-2xl border border-border shadow-card p-6 flex flex-col gap-4">
       <div className="flex items-end gap-4">
         <div className="flex-1">
           <label className="block text-[11px] font-medium text-text-secondary uppercase tracking-wide mb-1.5">
