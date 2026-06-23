@@ -43,8 +43,9 @@ Industries: ${(profile.industries ?? []).join(", ")}`;
     ],
   });
 
-  const raw = response.choices[0].message.content ?? "{}";
   try {
+    const rawContent = response.choices?.[0]?.message?.content;
+    const raw = typeof rawContent === "string" ? rawContent : "{}";
     const parsed = JSON.parse(raw) as ScoredJob;
     return {
       matchScore: Math.max(0, Math.min(100, Math.round(Number(parsed.matchScore) || 0))),
