@@ -45,9 +45,14 @@ export async function searchJobs(
   location: string,
   country: string = "us",
 ): Promise<AdzunaJob[]> {
+  const appId = process.env.ADZUNA_APP_ID;
+  const appKey = process.env.ADZUNA_APP_KEY;
+  if (!appId || !appKey) {
+    throw new Error("Missing required environment variables: ADZUNA_APP_ID and ADZUNA_APP_KEY must be set");
+  }
   const params = new URLSearchParams({
-    app_id: process.env.ADZUNA_APP_ID!,
-    app_key: process.env.ADZUNA_APP_KEY!,
+    app_id: appId,
+    app_key: appKey,
     what: jobTitle,
     category: "it-jobs",
     results_per_page: "10",
