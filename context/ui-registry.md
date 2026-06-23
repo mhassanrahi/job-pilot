@@ -217,22 +217,26 @@ Last updated: 2026-06-23
 
 | Property | Class / Value |
 | --- | --- |
-| Column header row | `grid grid-cols-[2fr_2fr_1.5fr_1fr_1fr] gap-4 px-6 py-3 border-b border-border` |
+| Column template | `grid-cols-[minmax(0,2fr)_minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]` stored in `COLS` constant shared by header + rows |
+| Column header row | `grid ${COLS} gap-4 px-6 py-3 border-b border-border` |
 | Column header text | `text-xs font-medium text-text-secondary uppercase tracking-wide` |
-| Job row | `grid grid-cols-[2fr_2fr_1.5fr_1fr_1fr] gap-4 px-6 py-4 border-b border-border hover:bg-surface-secondary transition-colors cursor-pointer items-center` |
+| Job row | `grid ${COLS} gap-4 px-6 py-4 border-b border-border hover:bg-surface-secondary transition-colors cursor-pointer items-center` |
+| Grid cell (all) | `min-w-0` — required on every direct grid child so `minmax(0,fr)` can shrink |
+| Company cell | `flex items-center gap-3 min-w-0` |
 | Company icon box | `w-8 h-8 rounded-lg bg-surface-tertiary border border-border flex items-center justify-center shrink-0` |
-| Company name | `text-sm font-medium text-text-primary` |
-| Role text | `text-sm text-text-primary` |
+| Company name | `text-sm font-medium text-text-primary truncate min-w-0` + `title={job.company}` |
+| Role text | `text-sm text-text-primary truncate min-w-0` + `title={job.role}` |
+| Score cell | `flex items-center gap-2 min-w-0` |
 | Score bar track | `flex-1 h-1 rounded-full bg-border-light overflow-hidden` |
 | Score bar fill | `h-1 rounded-full` + `bg-success` / `bg-info` / `bg-warning` by score range |
-| Score % text | `text-sm font-medium text-text-primary w-9 text-right` |
-| Salary text | `text-sm text-text-primary` |
-| Date text | `text-sm text-text-muted` |
+| Score % text | `text-sm font-medium text-text-primary w-9 text-right shrink-0` |
+| Salary text | `text-sm text-text-primary truncate min-w-0` + `title={job.salary}` |
+| Date text | `text-sm text-text-muted truncate min-w-0` |
 | Empty state | `px-6 py-16 flex flex-col items-center gap-2` |
 | Adzuna credit | `px-6 py-3 text-xs text-text-muted` |
 
 **Pattern notes:**
-Score color: ≥80 → `bg-success`, 60–79 → `bg-info`, <60 → `bg-warning`. Bar fill uses inline `style={{ width: \`${score}%\` }}` — the only inline style; dynamic percentage width cannot be done with a static class. `overflow-hidden` on track prevents fill from overflowing at edge values. `"use client"` required because `useRouter` is used for row click navigation. `Job` type is imported from `FindJobsClient.tsx` — not redefined.
+Column template uses `minmax(0, Xfr)` — NOT bare `fr`. Bare `fr` resolves to `minmax(auto, Xfr)` which gives each track an implicit `min-content` minimum, causing the grid (and the page) to expand horizontally when content is long. `minmax(0, Xfr)` forces the minimum to zero so columns always fit the container. `COLS` constant defined once at module level — shared by header div and every row `Link` so proportions never drift. `min-w-0` required on every direct grid child (flex and grid cells) so the shrink can propagate. Truncatable text cells get both `truncate min-w-0` and a `title` attribute for native hover tooltip — no extra library needed. Score color: ≥80 → `bg-success`, 60–79 → `bg-info`, <60 → `bg-warning`. Bar fill uses inline `style={{ width: \`${score}%\` }}` — the only inline style. `Job` type is imported from `FindJobsClient.tsx` — not redefined here.
 
 ---
 
@@ -252,3 +256,18 @@ Last updated: 2026-06-23
 
 **Pattern notes:**
 `getPageNumbers()` is a pure function outside the component — takes currentPage and totalPages, returns `(number | "...")[]`. For totalPages ≤ 5 shows all pages. For larger counts: first 3 pages show [1,2,3,...,N]; last 3 show [1,...,N-2,N-1,N]; middle shows [1,...,current,...,N]. Type is narrowed via if/return pattern (no `as number` cast needed). Ellipsis items use index-based keys to avoid React key conflicts.
+
+---
+
+#### FindJobsClient
+**File:** `components/find-jobs/FindJobsClient.tsx`
+Last updated: 2026-06-23
+
+| Property | Class / Value |
+| --- | --- |
+| Page wrapper | `max-w-[1440px] mx-auto px-8 py-8 flex flex-col gap-6` |
+| Jobs card wrapper | `bg-surface rounded-2xl border border-border shadow-sm` |
+| Error banner | `bg-error-lightest rounded-lg px-4 py-3 text-sm font-medium text-error` |
+
+**Pattern notes:**
+Orchestrator component — owns all state for the Find Jobs page: `jobTitle`, `location`, `isSearching`, `showSuccess`, `successMessage`, `searchError`, `jobs`, `filterText`, `matchFilter`, `sortBy`, `currentPage`. `handleSearch` POSTs to `/api/agent/find`, sets `jobs` from `json.data.jobs` on success, sets `searchError` on failure. Filter/sort/pagination derived synchronously from `jobs` state — no extra fetch needed. `PAGE_SIZE = 6` defined as a module-level constant. The jobs card wrapper uses `shadow-sm` (not the full shadow token) — lighter shadow appropriate for a secondary card beneath the search card which uses `shadow-card`.

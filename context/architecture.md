@@ -382,7 +382,7 @@ const stagehand = new Stagehand({
   projectId: process.env.BROWSERBASE_PROJECT_ID!,
   browserbaseSessionID: session.id,
   modelName: "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-  modelClientOptions: { apiKey: process.env.OPENAI_API_KEY! },
+  modelClientOptions: { apiKey: process.env.OPENROUTER_API_KEY! },
 });
 
 await stagehand.init();

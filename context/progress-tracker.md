@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Phase:** Phase 3 — Find Jobs Page
-**Last completed:** 09 Find Jobs Page — Full UI
-**Next:** 10 Adzuna Job Discovery
+**Last completed:** 10 Adzuna Job Discovery
+**Next:** 11 Filter + Sort + Pagination
 
 ---
 
@@ -31,7 +31,7 @@ Update this file after every completed feature. Any AI agent reading this should
 ### Phase 3 — Find Jobs Page
 
 - [x] 09 Find Jobs Page — Full UI
-- [ ] 10 Adzuna Job Discovery
+- [x] 10 Adzuna Job Discovery
 - [ ] 11 Filter + Sort + Pagination
 
 ### Phase 4 — Job Details Page
@@ -68,6 +68,11 @@ Update this file after every completed feature. Any AI agent reading this should
 - **Storage URLs are not publicly accessible**: always use `getResumeSignedUrl()` to open a resume in a new tab — never use the raw `uploadData.url` directly
 - **PDF hex colors are intentional**: react-pdf cannot use CSS variables — ui-tokens.md hex values are hardcoded in the PDF StyleSheet; this is the explicit exception to the no-hex rule
 - **Generate button returns URL**: `POST /api/resume/generate` returns `{ success, url }` — `ResumeSection` handles the response; "View current resume" always fetches a signed URL via `getResumeSignedUrl()` before opening in a tab
+- **MATCH_THRESHOLD lives in `lib/utils.ts`**: exported as `export const MATCH_THRESHOLD = 70` — import it everywhere; never hardcode 70
+- **All 10 Adzuna results are saved**: no pre-filter before DB write; strong match count (score ≥ MATCH_THRESHOLD) is for the success banner only
+- **`discoverJobs` returns `matchScores[]`**: route fires `job_found` PostHog events with per-job `matchScore` so dashboard charts work correctly
+- **OpenAI client in agent uses OpenRouter base URL**: `baseURL: "https://openrouter.ai/api/v1"` with `OPENROUTER_API_KEY` — model string is `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free`
+- **`insforge.auth.getCurrentUser()`**: confirmed — not `getUser()` (matches actions/profile.ts pattern)
 
 ---
 
