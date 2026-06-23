@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import posthog from "posthog-js";
+import { Logo } from "./Logo";
 
 export function Footer() {
   const handleFooterClick = (label: string, href: string) => {
@@ -12,10 +13,7 @@ export function Footer() {
   return (
     <footer className="bg-surface border-t border-border">
       <div className="max-w-[1440px] mx-auto px-8 py-10 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="JobPilot logo" width={28} height={28} />
-          <span className="text-base font-bold text-text-darkest">JobPilot</span>
-        </Link>
+        <Logo priority />
 
         <nav className="flex items-center gap-6">
           <Link
