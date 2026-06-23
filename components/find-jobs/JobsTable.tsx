@@ -1,7 +1,7 @@
 "use client";
 
 import { Building2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import type { Job } from "@/components/find-jobs/FindJobsClient";
 
 type Props = {
@@ -15,8 +15,6 @@ function getScoreColor(score: number): string {
 }
 
 export function JobsTable({ jobs }: Props) {
-  const router = useRouter();
-
   return (
     <div className="w-full">
       <div className="grid grid-cols-[2fr_2fr_1.5fr_1fr_1fr] gap-4 px-6 py-3 border-b border-border">
@@ -33,9 +31,9 @@ export function JobsTable({ jobs }: Props) {
         </div>
       ) : (
         jobs.map((job) => (
-          <div
+          <Link
             key={job.id}
-            onClick={() => router.push(`/find-jobs/${job.id}`)}
+            href={`/find-jobs/${job.id}`}
             className="grid grid-cols-[2fr_2fr_1.5fr_1fr_1fr] gap-4 px-6 py-4 border-b border-border hover:bg-surface-secondary transition-colors cursor-pointer items-center"
           >
             <div className="flex items-center gap-3">
@@ -58,7 +56,7 @@ export function JobsTable({ jobs }: Props) {
             </div>
             <span className="text-sm text-text-primary">{job.salary}</span>
             <span className="text-sm text-text-muted">{job.dateFound}</span>
-          </div>
+          </Link>
         ))
       )}
       <div className="px-6 py-3 text-xs text-text-muted">
