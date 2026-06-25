@@ -91,7 +91,7 @@ export function FindJobsClient() {
   const visibleJobs = sorted.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
-    <div className="max-w-[1440px] mx-auto px-8 py-8 flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <SearchControls
         jobTitle={jobTitle}
         location={location}

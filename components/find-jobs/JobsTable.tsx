@@ -18,7 +18,7 @@ const COLS = "grid-cols-[minmax(0,2fr)_minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1f
 
 export function JobsTable({ jobs }: Props) {
   return (
-    <div className="w-full">
+    <div className="w-full overflow-hidden">
       <div className={`grid ${COLS} gap-4 px-6 py-3 border-b border-border`}>
         <span className="text-xs font-medium text-text-secondary uppercase tracking-wide">Company</span>
         <span className="text-xs font-medium text-text-secondary uppercase tracking-wide">Role</span>
@@ -38,7 +38,7 @@ export function JobsTable({ jobs }: Props) {
             href={`/find-jobs/${job.id}`}
             className={`grid ${COLS} gap-4 px-6 py-4 border-b border-border hover:bg-surface-secondary transition-colors cursor-pointer items-center`}
           >
-            <div className="flex items-center gap-3 min-w-0">
+            <div className="flex items-center gap-3 min-w-0 overflow-hidden">
               <div className="w-8 h-8 rounded-lg bg-surface-tertiary border border-border flex items-center justify-center shrink-0">
                 <Building2 className="w-4 h-4 text-text-muted" />
               </div>
@@ -72,7 +72,7 @@ export function JobsTable({ jobs }: Props) {
             >
               {job.salary}
             </span>
-            <span className="text-sm text-text-muted truncate min-w-0">
+            <span className="text-sm text-text-muted truncate min-w-0" title={job.dateFound}>
               {job.dateFound}
             </span>
           </Link>
