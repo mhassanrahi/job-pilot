@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
+@theme inline {
+  --font-sans: var(--font-inter);
+}
+
 @theme {
-  /* Font */
-  --font-sans: "Inter", sans-serif;
 
   /* Page and surface backgrounds */
   --color-background: #f6f7fb;
@@ -10,6 +12,9 @@
   --color-surface-secondary: #f9fafb;
   --color-surface-tertiary: #f2f5f7;
   --color-surface-muted: #f4f5fb;
+  --color-spectrum-blue: #d7eaff;
+  --color-spectrum-pink: #f6dff2;
+  --color-spectrum-lilac: #ebe5ff;
 
   /* Borders */
   --color-border: #e7eaf3;
@@ -75,4 +80,42 @@
   --radius-lg: 12px;
   --radius-xl: 16px;
   --radius-full: 9999px;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+  }
+
+  a,
+  button {
+    cursor: pointer;
+  }
+}
+
+@utility soft-spectrum {
+  background:
+    radial-gradient(circle at 25% 22%, var(--color-spectrum-pink), transparent 38%),
+    radial-gradient(circle at 76% 20%, var(--color-spectrum-blue), transparent 42%),
+    radial-gradient(circle at 52% 82%, var(--color-spectrum-lilac), transparent 42%),
+    var(--color-surface);
+}
+
+@utility diagonal-divider {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--color-surface) 0,
+    var(--color-surface) 5px,
+    var(--color-border) 5px,
+    var(--color-border) 6px
+  );
 }
