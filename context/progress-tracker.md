@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Phase:** Phase 1 — Foundation
-**Last completed:** 01 Homepage
-**Next:** 02 Auth
+**Last completed:** 02 Auth
+**Next:** 03 PostHog Initialization
 
 ---
 
@@ -17,7 +17,7 @@ Update this file after every completed feature. Any AI agent reading this should
 ### Phase 1 — Foundation
 
 - [x] 01 Homepage
-- [ ] 02 Auth
+- [x] 02 Auth
 - [ ] 03 PostHog Initialization
 - [ ] 04 Database Schema
 
@@ -52,10 +52,16 @@ Update this file after every completed feature. Any AI agent reading this should
 
 - The homepage is split into reusable layout and marketing components matching the delivered landing-page design.
 - Supplied artwork in `public/images` is used for product previews rather than recreated UI mockups.
-- Marketing CTAs link to planned application routes; authentication-aware redirects remain part of Feature 02.
+- Homepage CTAs remain public and resolve to `/dashboard` for authenticated users or `/login` for guests.
+- Authentication uses `@insforge/sdk/ssr` with server-side PKCE initiation and exchange, HTTP-only refresh-token cookies, `/api/auth/refresh`, and Next.js 16 `proxy.ts` route protection.
+- The OAuth application callback is `/api/auth/callback`; only localhost should be allowlisted until a production deployment URL exists.
 
 ---
 
 ## Notes
 
 - Homepage visually verified at a 1920px desktop viewport and constrained for responsive layouts.
+- Auth UI, callback and refresh handlers, protected-route proxy, sign-out action, and temporary protected dashboard are implemented.
+- `/login` uses request-time rendering with `connection()` and `instant = false`.
+- Authentication code review findings are resolved: the app URL is required, callback failures are handled, and SDK guidance is current.
+- Feature 02 is complete.
