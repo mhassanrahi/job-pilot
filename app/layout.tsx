@@ -22,9 +22,12 @@ async function AuthenticatedPostHogIdentify() {
   const insforge = await createInsforgeServer();
   const { data } = await insforge.auth.getCurrentUser();
 
-  return data.user ? (
-    <PostHogIdentify distinctId={data.user.id} email={data.user.email} />
-  ) : null;
+  return (
+    <PostHogIdentify
+      distinctId={data.user?.id ?? null}
+      email={data.user?.email ?? null}
+    />
+  );
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
