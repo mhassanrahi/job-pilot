@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signOut } from "@/actions/auth";
+import { SignOutButton } from "@/components/auth/SignOutButton";
 import { createInsforgeServer } from "@/lib/insforge-server";
 
 export default async function DashboardPage() {
@@ -28,12 +29,7 @@ export default async function DashboardPage() {
           Authentication is ready. The full dashboard arrives in Feature 14.
         </p>
         <form action={signOut} className="mt-8">
-          <button
-            type="submit"
-            className="rounded-md bg-overlay px-6 py-3 text-sm font-medium text-accent-foreground transition-opacity hover:opacity-90"
-          >
-            Sign out
-          </button>
+          <SignOutButton />
         </form>
       </section>
     </main>
