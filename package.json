@@ -11,6 +11,8 @@
   "dependencies": {
     "@insforge/sdk": "^1.5.2",
     "next": "16.4.3",
+    "posthog-js": "^1.444.2",
+    "posthog-node": "^5.61.2",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },

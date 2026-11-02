@@ -134,8 +134,8 @@ Last updated: 2026-10-31
 
 ### Auth Surface
 
-Files: `app/(auth)/login/page.tsx`, `app/dashboard/page.tsx`, `components/auth/OAuthButton.tsx`
-Last updated: 2026-11-01
+Files: `app/(auth)/login/page.tsx`, `app/dashboard/page.tsx`, `components/auth/OAuthButton.tsx`, `components/auth/SignOutButton.tsx`
+Last updated: 2026-11-02
 
 | Property | Class |
 | --- | --- |
@@ -149,4 +149,23 @@ Last updated: 2026-11-01
 | Shadow | `shadow-lg` |
 | Accent usage | `soft-spectrum` page background, semantic success state |
 
-**Pattern notes:** Authentication screens use a centered white card on the shared spectrum background. Provider actions are full-width neutral bordered buttons, while session completion uses the semantic success palette. Loading states preserve the same card silhouette with `bg-surface-tertiary` skeletons.
+**Pattern notes:** Authentication screens use a centered white card on the shared spectrum background. Provider actions are full-width neutral bordered buttons, while session completion uses the semantic success palette. The sign-out action preserves the established `bg-overlay` primary-action treatment. Loading states preserve the same card silhouette with `bg-surface-tertiary` skeletons.
+
+### Analytics Lifecycle
+
+Files: `components/analytics/PostHogProvider.tsx`, `components/analytics/PostHogIdentify.tsx`
+Last updated: 2026-11-02
+
+| Property | Class |
+| --- | --- |
+| Background | none |
+| Border | none |
+| Border radius | none |
+| Text — primary | none |
+| Text — secondary | none |
+| Spacing | none |
+| Hover state | none |
+| Shadow | none |
+| Accent usage | none |
+
+**Pattern notes:** Analytics lifecycle components are intentionally non-visual. Keep PostHog context and authenticated-user identification isolated from rendered UI so future analytics work does not introduce styling or layout side effects.

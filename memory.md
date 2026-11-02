@@ -1,41 +1,45 @@
-# Memory — Feature 02 Authentication Complete
+# Memory — Feature 03 PostHog Initialization Complete
 
-Last updated: 2026-11-01 14:28 +01:00
+Last updated: 2026-11-02 14:31 +01:00
 
 ## What was built
 
-- Completed Google and GitHub OAuth with `@insforge/sdk/ssr`, including server-side PKCE initiation, callback exchange, session refresh, and sign-out.
-- Added the login experience under `app/(auth)/`, authentication routes under `app/api/auth/`, protected-route handling in `proxy.ts`, and the shared InsForge clients in `lib/`.
-- Added a temporary protected dashboard and made homepage CTAs authentication-aware behind Suspense boundaries.
-- Added a tracked `.env.example` and updated the architecture, library, dependency, UI registry, and progress documentation.
+- Added the PostHog browser client in `lib/posthog-client.ts`, initialized before hydration through `instrumentation-client.ts`.
+- Added the root analytics provider and authenticated-user identification components under `components/analytics/`.
+- Added `components/auth/SignOutButton.tsx` so logout resets the PostHog browser identity before the existing server action runs.
+- Added the `posthog-node` server client in `lib/posthog-server.ts` with immediate flushing for future server-side events.
+- Added the documented PostHog environment placeholders and updated the progress tracker and UI registry.
 
 ## Decisions made
 
-- OAuth initiation and code exchange remain server-side so the refresh token stays in an HTTP-only cookie.
-- `/` remains public; authenticated homepage CTAs lead to `/dashboard`, and authenticated `/login` visits redirect there.
-- `/login` intentionally uses request-time rendering with `connection()` and `instant = false`.
-- `NEXT_PUBLIC_APP_URL` is required for OAuth redirects; production must never fall back to localhost.
+- Browser analytics initialization remains centralized in `lib/`, with Next.js client instrumentation starting it before hydration and the root layout provider exposing the singleton client.
+- Authenticated users are identified by the stable InsForge user ID; email is only a person property.
+- Server features must create a PostHog client per operation and await `shutdown()` before returning.
+- Feature 03 introduces no custom events; future captures must use only the four event names approved in `context/code-standards.md`.
 
 ## Problems solved
 
-- Isolated homepage session reads behind Suspense boundaries for Next.js Cache Components.
-- Prevented InsForge time-dependent initialization from running during prerendering and resolved the `/login` instant-navigation validation error.
-- Added controlled OAuth callback failure handling without catching Next.js prerender interruption signals.
-- Resolved review findings covering deployment-origin configuration, callback reliability, tracked environment documentation, and obsolete InsForge SDK guidance.
+- Replaced an out-of-scope OpenTelemetry log exporter with the planned `posthog-node` server client.
+- Removed unapproved OAuth start and sign-out event names.
+- Split analytics identification, provider, sign-out, and OAuth button responsibilities into one component per file.
+- Added visible configuration errors instead of silently disabling browser analytics when PostHog configuration is missing.
+- Resolved the Feature 03 review findings covering plan alignment, dependency policy, architecture boundaries, documentation, and component organization.
 
 ## Current state
 
-- Feature 02 is complete and marked complete in `context/progress-tracker.md`.
+- Feature 03 is complete and marked complete in `context/progress-tracker.md`.
 - Lint and the Next.js 16.4.3 production build pass.
-- The login page, protected routes, callback/refresh flow, sign-out path, and authentication-aware homepage are implemented.
-- The latest InsForge SDK dependency tree still has an upstream high-severity Zod advisory with no compatible fix currently available.
+- Browser initialization, root provider wiring, authenticated identification, logout reset, and the future server-event client are implemented.
+- Live event ingestion has not yet been exercised because the four approved product events belong to later features.
+- The dependency audit reports 16 moderate advisories and the existing 3 high-severity Zod advisories; the Zod issue remains upstream through the InsForge SDK with no compatible fix currently available.
 
 ## Next session starts with
 
-Begin Feature 03 — PostHog Initialization, following `context/build-plan.md` and the existing project library rules.
+Begin Feature 04 — Database Schema, following `context/build-plan.md` and using the InsForge CLI skill before changing backend infrastructure.
 
 ## Open questions
 
-- Add the production OAuth callback URL and production `NEXT_PUBLIC_APP_URL` when a deployment URL exists.
-- Recheck the upstream InsForge/Zod advisory when a newer compatible SDK release is available.
+- Confirm live PostHog ingestion when the first approved product event is implemented.
+- Add production PostHog and OAuth configuration when a deployment URL exists.
+- Recheck dependency advisories when compatible InsForge and PostHog releases are available.
 - `/privacy` and `/terms` still point to unimplemented routes.
