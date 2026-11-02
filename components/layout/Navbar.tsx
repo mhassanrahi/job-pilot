@@ -1,7 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 
-export function Navbar() {
+type Props = {
+  isAuthenticated?: boolean;
+};
+
+export function Navbar({ isAuthenticated = false }: Props) {
   return (
     <header className="border-b border-border bg-surface">
       <div className="mx-auto flex h-24 w-full max-w-[1720px] items-center justify-between gap-4 px-5 lg:px-12">
@@ -20,10 +24,10 @@ export function Navbar() {
           </Link>
         </nav>
         <Link
-          href="/login"
+          href={isAuthenticated ? "/dashboard" : "/login"}
           className="shrink-0 rounded-md bg-overlay px-4 py-3 text-xs font-medium text-accent-foreground transition-opacity hover:opacity-90 sm:px-6 sm:text-base"
         >
-          Start for free
+          {isAuthenticated ? "Open dashboard" : "Start for free"}
         </Link>
       </div>
     </header>

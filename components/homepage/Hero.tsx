@@ -1,6 +1,10 @@
 import Link from "next/link";
 
-export function Hero() {
+type Props = {
+  isAuthenticated?: boolean;
+};
+
+export function Hero({ isAuthenticated = false }: Props) {
   return (
     <section className="soft-spectrum mt-20 flex min-h-[560px] flex-col items-center justify-center border-y border-border px-6 py-20 text-center lg:mt-24">
       <h1 className="max-w-5xl text-[40px] font-semibold leading-[1.08] tracking-[-0.05em] text-text-black sm:text-6xl md:text-[76px]">
@@ -13,7 +17,7 @@ export function Hero() {
       </p>
       <div className="mt-10 flex flex-col gap-4 sm:flex-row">
         <Link
-          href="/login"
+          href={isAuthenticated ? "/dashboard" : "/login"}
           className="rounded-md bg-overlay px-8 py-4 text-base font-medium text-accent-foreground transition-opacity hover:opacity-90"
         >
           Get Started <span aria-hidden="true" className="ml-1 text-text-muted">▶</span>

@@ -131,3 +131,22 @@ Last updated: 2026-10-31
 | Accent usage | brand logo and link hover |
 
 **Pattern notes:** The footer stacks on small screens and becomes a single horizontal row at `md`, with the wordmark left and simple text links right.
+
+### Auth Surface
+
+Files: `app/(auth)/login/page.tsx`, `app/dashboard/page.tsx`, `components/auth/OAuthButton.tsx`
+Last updated: 2026-11-01
+
+| Property | Class |
+| --- | --- |
+| Background | `soft-spectrum` page, `bg-surface` card |
+| Border | `border border-border` |
+| Border radius | `rounded-xl` card, `rounded-md` actions |
+| Text — primary | `text-text-primary` |
+| Text — secondary | `text-text-secondary`, `text-text-muted` |
+| Spacing | `p-6 sm:p-8` card, `space-y-3` actions |
+| Hover state | `hover:bg-surface-secondary`, `hover:text-accent` |
+| Shadow | `shadow-lg` |
+| Accent usage | `soft-spectrum` page background, semantic success state |
+
+**Pattern notes:** Authentication screens use a centered white card on the shared spectrum background. Provider actions are full-width neutral bordered buttons, while session completion uses the semantic success palette. Loading states preserve the same card silhouette with `bg-surface-tertiary` skeletons.
