@@ -24,6 +24,7 @@ export function initPostHog(): typeof posthog | null {
 
   posthog.init(posthogKey, {
     api_host: posthogHost,
+    autocapture: false,
     capture_pageview: false,
     defaults: "2025-05-24",
     debug: process.env.NODE_ENV === "development",
