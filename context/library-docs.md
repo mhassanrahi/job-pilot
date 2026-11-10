@@ -116,14 +116,29 @@ const { error } = await insforge
 
 ```typescript
 // Upload file
+const resumeBlob = new Blob([fileBuffer], { type: "application/pdf" });
+
 const { data, error } = await insforge.storage
   .from("resumes")
-  .upload(`${userId}/resume.pdf`, fileBuffer);
+  .upload(`${userId}/resume.pdf`, resumeBlob);
 
-await insforge.database.from("profiles").update({
-  resume_pdf_url: data.url,
-  resume_pdf_key: data.key,
-}).eq("id", userId);
+if (error || !data) {
+  throw new Error("Failed to upload resume");
+}
+
+const { data: updatedProfile, error: updateError } = await insforge.database
+  .from("profiles")
+  .update({
+    resume_pdf_url: data.url,
+    resume_pdf_key: data.key,
+  })
+  .eq("id", userId)
+  .select("id")
+  .single();
+
+if (updateError || !updatedProfile) {
+  throw new Error("Failed to save resume metadata");
+}
 
 // Later, download through the authenticated storage client using the key.
 const { data: resume, error: downloadError } = await insforge.storage
