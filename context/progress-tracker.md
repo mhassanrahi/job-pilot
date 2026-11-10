@@ -6,9 +6,9 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ## Current Status
 
-**Phase:** Phase 1 — Foundation
-**Last completed:** 03 PostHog Initialization
-**Next:** 04 Database Schema
+**Phase:** Phase 2 — Profile Page
+**Last completed:** 04 Database Schema
+**Next:** 05 Profile Page — Full UI
 
 ---
 
@@ -19,7 +19,7 @@ Update this file after every completed feature. Any AI agent reading this should
 - [x] 01 Homepage
 - [x] 02 Auth
 - [x] 03 PostHog Initialization
-- [ ] 04 Database Schema
+- [x] 04 Database Schema
 
 ### Phase 2 — Profile Page
 
@@ -57,6 +57,10 @@ Update this file after every completed feature. Any AI agent reading this should
 - The OAuth application callback is `/api/auth/callback`; only localhost should be allowlisted until a production deployment URL exists.
 - PostHog browser initialization runs before hydration through `instrumentation-client.ts`, while the root layout provider exposes the shared client to authentication lifecycle components.
 - PostHog server events use a fresh `posthog-node` client with immediate flushing; every call site must await `shutdown()` before returning.
+- Database infrastructure is managed through versioned InsForge migrations, with
+  least-privilege grants and owner-scoped RLS enforced independently of app filters.
+- Resume storage uses a private bucket, a durable object key, owner attribution,
+  and a restrictive `{user_id}/resume.pdf` path policy.
 
 ---
 
@@ -69,3 +73,6 @@ Update this file after every completed feature. Any AI agent reading this should
 - Feature 02 is complete.
 - PostHog identifies authenticated users by their stable auth user ID and resets browser identity on logout.
 - Feature 03 is complete; lint and the Next.js production build pass.
+- Feature 04 is merged and applied to the parent Job Pilot InsForge backend.
+- The four application tables, constraints, indexes, grants, RLS policies, and
+  private `resumes` bucket passed structural verification.

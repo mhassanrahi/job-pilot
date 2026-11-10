@@ -169,3 +169,24 @@ Last updated: 2026-11-02
 | Accent usage | none |
 
 **Pattern notes:** Analytics lifecycle components are intentionally non-visual. Keep PostHog context and authenticated-user identification isolated from rendered UI so future analytics work does not introduce styling or layout side effects.
+
+### Database Foundation
+
+Files: `migrations/20261110071940_create-job-pilot-schema.sql`
+Last updated: 2026-11-10
+
+| Property | Class |
+| --- | --- |
+| Background | none |
+| Border | none |
+| Border radius | none |
+| Text — primary | none |
+| Text — secondary | none |
+| Spacing | none |
+| Hover state | none |
+| Shadow | none |
+| Accent usage | none |
+
+**Pattern notes:** Feature 04 is intentionally non-visual. Database tables, RLS,
+least-privilege grants, and private resume storage establish the data contract
+used by later profile, job discovery, research, and dashboard components.

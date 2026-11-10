@@ -118,17 +118,17 @@ const { error } = await insforge
 // Upload file
 const { data, error } = await insforge.storage
   .from("resumes")
-  .upload(`${userId}/resume.pdf`, fileBuffer, {
-    contentType: "application/pdf",
-    upsert: true, // overwrites existing file
-  });
+  .upload(`${userId}/resume.pdf`, fileBuffer);
 
-// Get public URL
-const { data } = insforge.storage
+await insforge.database.from("profiles").update({
+  resume_pdf_url: data.url,
+  resume_pdf_key: data.key,
+}).eq("id", userId);
+
+// Later, download through the authenticated storage client using the key.
+const { data: resume, error: downloadError } = await insforge.storage
   .from("resumes")
-  .getPublicUrl(`${userId}/resume.pdf`);
-
-const url = data.publicUrl;
+  .download(profile.resume_pdf_key);
 ```
 
 **Storage paths:**
@@ -137,8 +137,10 @@ const url = data.publicUrl;
 
 **Rules:**
 
-- Always use `upsert: true` for base resume uploads — overwrites existing file
-- Always save the public URL back to the DB after upload
+- Uploading to the same key replaces the current base resume
+- Always save both the returned URL and durable key to the profile
+- The `resumes` bucket is private; never treat its object URL as public
+- Use the stored key for authenticated download and delete operations
 - Never write files to disk — always upload buffer directly to storage
 
 ---
