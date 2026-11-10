@@ -7,8 +7,8 @@ Update this file after every completed feature. Any AI agent reading this should
 ## Current Status
 
 **Phase:** Phase 2 — Profile Page
-**Last completed:** 04 Database Schema
-**Next:** 05 Profile Page — Full UI
+**Last completed:** 05 Profile Page — Full UI
+**Next:** 06 Profile Save Logic
 
 ---
 
@@ -23,7 +23,7 @@ Update this file after every completed feature. Any AI agent reading this should
 
 ### Phase 2 — Profile Page
 
-- [ ] 05 Profile Page — Full UI
+- [x] 05 Profile Page — Full UI
 - [ ] 06 Profile Save Logic
 - [ ] 07 AI Profile Extraction from Resume
 - [ ] 08 Resume PDF Generation from Profile
@@ -61,6 +61,10 @@ Update this file after every completed feature. Any AI agent reading this should
   least-privilege grants and owner-scoped RLS enforced independently of app filters.
 - Resume storage uses a private bucket, a durable object key, owner attribution,
   and a restrictive `{user_id}/resume.pdf` path policy.
+- The profile page keeps its route page server-rendered and isolates local form,
+  tag, repeatable-role, and file-picker interactions in client components.
+- Feature 05 remains mock-data UI only; profile persistence, resume extraction,
+  and resume generation are reserved for Features 06–08.
 
 ---
 
@@ -76,3 +80,6 @@ Update this file after every completed feature. Any AI agent reading this should
 - Feature 04 is merged and applied to the parent Job Pilot InsForge backend.
 - The four application tables, constraints, indexes, grants, RLS policies, and
   private `resumes` bucket passed structural verification.
+- Feature 05 matches the supplied profile design with a compact authenticated
+  navbar, completion banner, PDF drop zone, and the complete responsive profile
+  form including cover letter tone and up to three work roles.

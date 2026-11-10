@@ -1,57 +1,52 @@
-# Memory — Feature 04 Database Schema Complete
+# Memory — Feature 05 Profile Page UI Complete
 
-Last updated: 2026-11-10 08:49 +01:00
+Last updated: 2026-11-10 09:16 +01:00
 
 ## What was built
 
-- Added `migrations/20261110071940_create-job-pilot-schema.sql` defining the
-  `profiles`, `agent_runs`, `jobs`, and `agent_logs` tables with constraints,
-  indexes, ownership-safe foreign keys, least-privilege grants, and RLS.
-- Added private resume-storage policies enforcing owner access to the exact
-  `{user_id}/resume.pdf` path.
-- Added profile completion fields and durable `resume_pdf_key` storage metadata.
-- Created the private `resumes` bucket and merged the migration into the parent
-  Job Pilot InsForge backend.
-- Updated `context/architecture.md`, `context/build-plan.md`,
-  `context/library-docs.md`, `context/progress-tracker.md`, and
-  `context/ui-registry.md` for Feature 04.
+- Added `app/profile/page.tsx` as the server-rendered profile route with page metadata.
+- Added `components/profile/ProfileNavbar.tsx`, `CompletionIndicator.tsx`,
+  `ResumeUpload.tsx`, and `ProfileForm.tsx` to reproduce the supplied profile design.
+- Implemented responsive authenticated navigation, the 70% completion banner,
+  PDF selection and drag feedback, removable skill and industry tags, and up to
+  three editable work-experience roles.
+- Completed every planned form section, including personal information,
+  professional information, education, job preferences, and cover letter tone.
+- Updated `context/ui-registry.md` with the new visual patterns and marked
+  Feature 05 complete in `context/progress-tracker.md`.
 
 ## Decisions made
 
-- `profiles.id` is both the primary key and the reference to `auth.users(id)`;
-  other tables carry an explicit `user_id`.
-- Resume tailoring remains out of scope, so no tailored-job columns were added.
-- Resume storage persists both the returned URL and durable object key; the
-  bucket stays private and access is path-scoped.
-- Authenticated users receive select/insert and narrowly scoped updates, but no
-  direct deletes. Agent logs are append-only for authenticated clients.
-- Composite foreign keys prevent records from linking to another user's run or
-  job. User deletion cascades owned data, run deletion cascades run output, and
-  job deletion preserves logs while clearing their optional job link.
+- The route page stays a Server Component; only the upload and interactive form
+  controls are Client Components.
+- Feature 05 remains mock-data UI only. Profile persistence, resume extraction,
+  and resume generation remain scoped to Features 06–08.
+- The authenticated product navbar uses compact icon-only navigation below the
+  `sm` breakpoint while retaining accessible labels.
 
 ## Problems solved
 
-- Distinguished the Git branch from an InsForge backend branch, created an
-  isolated schema-only backend branch for the migration, and avoided applying
-  untested RLS directly to the parent.
-- Added restrictive storage policies alongside InsForge owner policies so a
-  user cannot upload a resume under another user's path or another filename.
-- Corrected the CLI context after verification found it still linked to the
-  backend branch; it is now linked to the parent project.
+- Fixed mobile horizontal overflow caused by the full navigation labels and
+  large card min-content widths.
+- Kept all visual styling on project tokens with no hardcoded component colors
+  or raw Tailwind color classes.
 
 ## Current state
 
-- Feature 04 is complete and marked complete in `context/progress-tracker.md`.
-- The parent backend contains the migration and the private `resumes` bucket.
-- Parent migration history, bucket privacy, schema, constraints, indexes, RLS,
-  and privilege boundaries were structurally verified.
-- ESLint and the Next.js 16.4.3 production build pass.
-- The Feature 04 files are present in the working tree but have not been
-  committed during this session.
+- Feature 05 is complete and marked complete in `context/progress-tracker.md`.
+- The profile page matches the supplied desktop design, and the developer
+  manually verified that mobile responsiveness looks correct.
+- PDF selection, tags, and repeatable roles work locally; Save Profile and
+  Generate Resume intentionally have no backend behavior yet.
+- ESLint, `git diff --check`, TypeScript, and the Next.js 16.4.3 production build pass.
+- Feature 05 files and documentation updates are present in the working tree
+  and have not been committed during this session.
 
 ## Next session starts with
 
-Feature 05 — Profile Page Full UI — using `/architect` before implementation.
+Feature 06 — Profile Save Logic. Use `/architect` before implementation, then
+wire the profile form to InsForge with authenticated reads, validation, owner-
+scoped updates, completion calculation, and `revalidatePath("/profile")`.
 
 ## Open questions
 

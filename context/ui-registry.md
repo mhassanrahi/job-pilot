@@ -190,3 +190,79 @@ Last updated: 2026-11-10
 **Pattern notes:** Feature 04 is intentionally non-visual. Database tables, RLS,
 least-privilege grants, and private resume storage establish the data contract
 used by later profile, job discovery, research, and dashboard components.
+
+### Authenticated App Navigation
+
+File: `components/profile/ProfileNavbar.tsx`
+Last updated: 2026-11-10
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` |
+| Border | `border-b border-border` |
+| Border radius | none |
+| Text — primary | `text-text-dark` |
+| Text — secondary | none |
+| Spacing | `h-16 px-5 sm:px-8`, `gap-5 sm:gap-8` |
+| Hover state | `hover:text-accent` |
+| Shadow | none |
+| Accent usage | `text-accent`, `bg-accent` active indicator |
+
+**Pattern notes:** Authenticated product pages use a compact 64px app header. The active route uses accent text and a two-pixel bottom indicator. Below `sm`, navigation labels become screen-reader-only and the three icons remain visible.
+
+### Profile Completion Banner
+
+File: `components/profile/CompletionIndicator.tsx`
+Last updated: 2026-11-10
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface` |
+| Border | `border border-error/20` |
+| Border radius | `rounded-xl` |
+| Text — primary | `text-text-primary` |
+| Text — secondary | `text-text-secondary` |
+| Spacing | `p-6 sm:p-8`, `gap-6` |
+| Hover state | none |
+| Shadow | `shadow-sm` |
+| Accent usage | `text-error`, `bg-error/10` missing-field badges and progress ring |
+
+**Pattern notes:** Incomplete-profile guidance stays on a white card and uses the semantic error palette only for the alert icon, missing-field labels, and circular completion indicator. The content stacks on small screens.
+
+### Resume Upload Card
+
+File: `components/profile/ResumeUpload.tsx`
+Last updated: 2026-11-10
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface`, `bg-surface-secondary` drop zone |
+| Border | `border border-border`, `border-dashed border-border-muted` drop zone |
+| Border radius | `rounded-xl`, `rounded-lg` drop zone |
+| Text — primary | `text-text-primary` |
+| Text — secondary | `text-text-secondary` |
+| Spacing | `p-6 sm:p-8`, `px-5 py-8` drop zone |
+| Hover state | `hover:bg-surface-secondary`, `hover:opacity-90` |
+| Shadow | `shadow-sm` |
+| Accent usage | `text-accent`, `border-accent bg-accent-muted` drag state, `bg-accent` primary action |
+
+**Pattern notes:** File upload areas use a light secondary surface with a dashed token border. Drag state changes only the border and subtle surface accent; the upload control remains neutral while the downstream action is primary.
+
+### Profile Form
+
+File: `components/profile/ProfileForm.tsx`
+Last updated: 2026-11-10
+
+| Property | Class |
+| --- | --- |
+| Background | `bg-surface`, `bg-surface-secondary` nested role cards |
+| Border | `border border-border`, section `border-t border-border` |
+| Border radius | `rounded-xl`, `rounded-lg` nested role cards, `rounded-md` controls |
+| Text — primary | `text-text-primary` |
+| Text — secondary | `text-text-secondary`, `text-text-muted` |
+| Spacing | `p-6 sm:p-8`, section `pt-8`, fields `gap-5` |
+| Hover state | `hover:bg-border`, primary `hover:opacity-90` |
+| Shadow | `shadow-sm`, inputs `shadow-sm` |
+| Accent usage | `focus:border-accent focus:ring-1 focus:ring-accent`, `bg-accent` save action |
+
+**Pattern notes:** Long forms use bordered section dividers, uppercase 12px labels, 44px minimum-height controls, and a two-column grid from `md`. Nested repeatable records use the secondary surface and one lower radius level. Primary submit actions span the card width.
