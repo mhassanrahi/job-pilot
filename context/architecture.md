@@ -217,8 +217,11 @@ URL saved to profiles table
 | linkedin_url        | text        |                                              |
 | portfolio_url       | text        |                                              |
 | work_authorization  | text        | citizen / permanent_resident / visa_required |
-| resume_pdf_url      | text        | InsForge Storage URL of current resume       |
+| resume_pdf_url      | text        | InsForge Storage URL returned on upload      |
+| resume_pdf_key      | text        | Durable `{user_id}/resume.pdf` object key    |
 | is_complete         | boolean     | True when all required fields filled         |
+| completion_percentage | integer   | Profile completion from 0 to 100             |
+| missing_fields      | text[]      | Required profile fields still missing        |
 | created_at          | timestamptz |                                              |
 | updated_at          | timestamptz |                                              |
 
@@ -283,7 +286,9 @@ URL saved to profiles table
 | ------- | ---------------------------- | ------------------------- |
 | resumes | resumes/{user_id}/resume.pdf | Current active resume PDF |
 
-Access: authenticated users only, own files only.
+Access: private bucket. Authenticated users can access only their own exact
+`{user_id}/resume.pdf` object. Persist both the upload URL and object key; use
+the key for authenticated download, replacement, and deletion operations.
 
 ---
 

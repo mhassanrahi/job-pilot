@@ -69,12 +69,12 @@ All InsForge tables and storage bucket created before any data is written.
 
 - Create `profiles` table with all columns from architecture.md
 - Create `agent_runs` table
-- Create `jobs` table with all columns including:
-  - tailored fields
-  - company_research jsonb column
-  - source values: 'search' | 'url'
+- Create `jobs` table with `company_research` jsonb and source values restricted
+  to `'search' | 'url'`
 - Create `agent_logs` table
-- Create `resumes` storage bucket with authenticated access only
+- Add persisted profile completion percentage, missing fields, resume URL, and
+  durable resume object key
+- Create private `resumes` storage bucket with authenticated owner access only
 - Row level security policies on all four tables — always filter by user_id
 
 ---
